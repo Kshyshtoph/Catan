@@ -15,6 +15,6 @@ class Skipper {
   };
   draw = () => {
     ctx.fillStyle = "green";
-    ctx.fillRect(475, 475, 100, 80);
+    ctx.fillRect(this.x, this.y, this.width, this.height);
   };
 }

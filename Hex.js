@@ -18,7 +18,24 @@ class Hex {
         )
       ]);
     }
-    this.markers = this.corners.map(corner => new Marker(corner[0], corner[1]));
+    this.buildingMarkers = this.corners.map(
+      corner => new Marker(corner[0], corner[1])
+    );
+    this.roadMarkers = [];
+    this.roadMarkers.push(
+      new RoadMarker(
+        this.corners[0][0] + this.corners[this.corners.length - 1][0],
+        this.corners[0][1] + this.corners[this.corners.length - 1][1]
+      )
+    );
+    for (let i = 1; i < this.corners.length - 1; i++) {
+      this.roadMarkers.push(
+        new RoadMarker(
+          this.corners[i - 1][0] + this.corners[i][0],
+          this.corners[i - 1][1] + this.corners[i][1]
+        )
+      );
+    }
   }
   draw = () => {
     const numberOfEdges = 6;
@@ -40,8 +57,8 @@ class Hex {
     ctx.fillStyle = "black";
     ctx.fillText(this.number, this.x - 15, this.y + 15);
   };
-  drawMarkers = () => {
-    this.markers.forEach(marker => {
+  drawBuildingMarkers = () => {
+    this.buildingMarkers.forEach(marker => {
       marker.draw();
     });
   };

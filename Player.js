@@ -3,7 +3,13 @@ class Player {
     this.colour = colour;
     this.meeples = [];
     this.pushMeeples();
+    this.pushRoads();
   }
+  pushRoads = () => {
+    for (let i = 0; i < 15; i++) {
+      this.meeples.push(new Road(this, i));
+    }
+  };
   pushMeeples = () => {
     for (let i = 0; i < 5; i++) {
       this.meeples.push(new Settlement(this, i));

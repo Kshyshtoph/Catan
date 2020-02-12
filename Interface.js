@@ -7,10 +7,12 @@ class Interface {
     ctx.fillStyle = "burlywood";
     ctx.fillRect(450, 0, 150, 600);
     if (
-      this.player.meeples.findIndex(meeple => meeple.active === true) !== -1
+      this.player.meeples.findIndex(
+        meeple => meeple.active === true && meeple.type === "settlement"
+      ) !== -1
     ) {
       board.hexes.forEach(hex => {
-        hex.drawMarkers();
+        hex.drawBuildingMarkers();
       });
     } else {
       board.drawHexes();
@@ -27,7 +29,7 @@ class Interface {
         this.player.meeples.findIndex(meeple => meeple.active === true)
       ];
       board.hexes.forEach(hex => {
-        hex.markers.forEach(marker => {
+        hex.buildingMarkers.forEach(marker => {
           const { x, y, width, height } = marker;
           if (
             e.offsetX > x - width / 2 &&
@@ -42,7 +44,7 @@ class Interface {
             activeMeeple.active = false;
             marker.taken = true;
             board.hexes.forEach(hex => {
-              hex.markers.forEach(m => {
+              hex.buildingMarkers.forEach(m => {
                 if (
                   m.x > marker.x - hexRadius - 5 &&
                   m.x < marker.x + hexRadius + 5 &&
@@ -73,7 +75,7 @@ class Interface {
     });
     if (
       e.offsetX > this.skipper.x &&
-      e.offsetX < this.skipper.x + this.skipper.height &&
+      e.offsetX < this.skipper.x + this.skipper.width &&
       e.offsetY > this.skipper.y &&
       e.offsetY < this.skipper.y + this.skipper.height
     ) {

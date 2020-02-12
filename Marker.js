@@ -14,3 +14,8 @@ class Marker {
     }
   };
 }
+class RoadMarker extends Marker {
+  constructor(x, y) {
+    super(x, y);
+  }
+}

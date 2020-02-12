@@ -94,6 +94,14 @@ class Interface {
                 ) {
                   m.taken = true;
                 }
+                if (
+                  m.x > marker.x - 1 &&
+                  m.x < marker.x + 1 &&
+                  m.y > marker.y - 1 &&
+                  m.y < marker.y + 1
+                ) {
+                  m.ocupation = this.player;
+                }
               });
               hex.roadMarkers.forEach(m => {
                 if (

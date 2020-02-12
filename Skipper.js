@@ -19,10 +19,13 @@ class Skipper {
       currentPlayer.freeRoad = true;
       currentPlayer.freeSettlement = true;
     }
+    diceResult = board.dice.roll();
+    board.hexes.forEach(hex => {
+      hex.payResources();
+    });
   };
   draw = () => {
     ctx.fillStyle = "green";
     ctx.fillRect(this.x, this.y, this.width, this.height);
-    this.dice.draw();
   };
 }

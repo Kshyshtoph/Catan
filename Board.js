@@ -26,6 +26,7 @@ class Board {
     this.boardRadius = boardRadius;
     this.hexRadius = hexRadius;
     this.hexHeight = hexRadius * Math.sqrt(3);
+    this.dice = new Dice();
   }
   pushNubers = () => {
     for (let i = 2; i <= 12; i++) {
@@ -82,5 +83,6 @@ class Board {
     this.hexes.forEach(hex => {
       hex.draw();
     });
+    this.dice.draw(diceResult);
   };
 }

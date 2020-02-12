@@ -92,4 +92,45 @@ class Hex {
       marker.draw();
     });
   };
+  payResources = () => {
+    if (diceResult === this.number) {
+      switch (this.colour) {
+        case "green":
+          this.buildingMarkers.forEach(marker => {
+            if (marker.ocupation) {
+              marker.ocupation.resources[0] += 1;
+            }
+          });
+          break;
+        case "lime":
+          this.buildingMarkers.forEach(marker => {
+            if (marker.ocupation) {
+              marker.ocupation.resources[1] += 1;
+            }
+          });
+          break;
+        case "brown":
+          this.buildingMarkers.forEach(marker => {
+            if (marker.ocupation) {
+              marker.ocupation.resources[2] += 1;
+            }
+          });
+          break;
+        case "gray":
+          this.buildingMarkers.forEach(marker => {
+            if (marker.ocupation) {
+              marker.ocupation.resources[3] += 1;
+            }
+          });
+          break;
+        case "yellow":
+          this.buildingMarkers.forEach(marker => {
+            if (marker.ocupation) {
+              marker.ocupation.resources[4] += 1;
+            }
+          });
+          break;
+      }
+    }
+  };
 }

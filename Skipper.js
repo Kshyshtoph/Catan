@@ -11,7 +11,9 @@ class Skipper {
     this.activePlayerIndex++;
     if (this.activePlayerIndex == players.length) {
       this.activePlayerIndex = 0;
+      currentRound++;
     }
+    currentPlayer = players[this.activePlayerIndex];
   };
   draw = () => {
     ctx.fillStyle = "green";

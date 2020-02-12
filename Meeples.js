@@ -8,6 +8,8 @@ class Settlement {
     this.height = 20;
     this.x = 500;
     this.y = this.id * 40 + 25;
+    this.initialX = 500;
+    this.initialY = this.y;
     this.active = false;
   }
   draw = () => {
@@ -63,30 +65,29 @@ class Road {
     this.x = 475 + (this.id % 3) * 30;
     this.y = Math.floor(this.id / 3) * 40 + 250;
     this.active = false;
+    this.direction = 20;
   }
   draw = () => {
     if (this.active) {
       ctx.fillStyle = "black";
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate((20 * Math.PI) / 180);
+      ctx.rotate((this.direction * Math.PI) / 180);
       ctx.fillRect(
         -this.width / 2 - 2,
         -this.height / 2 - 2,
         this.width + 4,
         this.height + 4
       );
-      ctx.rotate((-20 * Math.PI) / 180);
+      ctx.rotate((-this.direction * Math.PI) / 180);
       ctx.translate(-this.x - this.width / 2, -this.y - this.height / 2);
     }
-    if (!this.inPlay) {
-      ctx.fillStyle = this.colour;
-      ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate((20 * Math.PI) / 180);
-      ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-      ctx.rotate((-20 * Math.PI) / 180);
-      ctx.translate(-this.x - this.width / 2, -this.y - this.height / 2);
-      ctx.fillStyle = "black";
-      ctx.fillRect(this.x - 1, this.y - 1, 2, 2);
-    }
+    ctx.fillStyle = this.colour;
+    ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+    ctx.rotate((this.direction * Math.PI) / 180);
+    ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+    ctx.rotate((-this.direction * Math.PI) / 180);
+    ctx.translate(-this.x - this.width / 2, -this.y - this.height / 2);
+    // ctx.fillStyle = "black";
+    // ctx.fillRect(this.x - 1, this.y - 1, 2, 2);
   };
 }

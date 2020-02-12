@@ -24,19 +24,44 @@ class Hex {
     this.roadMarkers = [];
     this.roadMarkers.push(
       new RoadMarker(
-        this.corners[0][0] + this.corners[this.corners.length - 1][0],
-        this.corners[0][1] + this.corners[this.corners.length - 1][1]
+        (this.corners[0][0] + this.corners[this.corners.length - 1][0]) / 2,
+        (this.corners[0][1] + this.corners[this.corners.length - 1][1]) / 2
       )
     );
-    for (let i = 1; i < this.corners.length - 1; i++) {
+    for (let i = 1; i < this.corners.length; i++) {
       this.roadMarkers.push(
         new RoadMarker(
-          this.corners[i - 1][0] + this.corners[i][0],
-          this.corners[i - 1][1] + this.corners[i][1]
+          (this.corners[i - 1][0] + this.corners[i][0]) / 2,
+          (this.corners[i - 1][1] + this.corners[i][1]) / 2,
+          this.switchDirection(
+            this.corners[i - 1][0],
+            this.corners[i][0],
+            this.corners[i - 1][1],
+            this.corners[i][1]
+          )
         )
       );
     }
   }
+  switchDirection = (x1, x2, y1, y2) => {
+    if (x1 > x2) {
+      if (y1 > y2) {
+        return 60;
+      } else if (y1 < y2) {
+        return 300;
+      } else {
+        return 180;
+      }
+    } else {
+      if (y1 > y2) {
+        return 120;
+      } else if (y1 < y2) {
+        return 240;
+      } else {
+        return 0;
+      }
+    }
+  };
   draw = () => {
     const numberOfEdges = 6;
     ctx.fillStyle = this.colour;
@@ -59,6 +84,11 @@ class Hex {
   };
   drawBuildingMarkers = () => {
     this.buildingMarkers.forEach(marker => {
+      marker.draw();
+    });
+  };
+  drawRoadMarkers = () => {
+    this.roadMarkers.forEach(marker => {
       marker.draw();
     });
   };

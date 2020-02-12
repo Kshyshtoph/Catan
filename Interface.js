@@ -14,6 +14,12 @@ class Interface {
       board.hexes.forEach(hex => {
         hex.drawBuildingMarkers();
       });
+    } else if (
+      this.player.meeples.findIndex(
+        meeple => meeple.active === true && meeple.type === "road"
+      ) !== -1
+    ) {
+      board.hexes.forEach(hex => hex.drawRoadMarkers());
     } else {
       board.drawHexes();
     }
@@ -22,8 +28,39 @@ class Interface {
     this.skipper.draw();
   };
   handleClick = e => {
+    this.handleSettlementBuild(e);
+    this.handleRoadBuild(e);
+    this.handleCityBuild(e);
+    this.player.meeples.forEach(meeple => {
+      if (!meeple.inPlay) {
+        const { x, y, width, height } = meeple;
+        meeple.active = false;
+        if (
+          e.offsetX > x &&
+          e.offsetX < x + width &&
+          e.offsetY > y &&
+          e.offsetY < y + height
+        ) {
+          meeple.active = true;
+        }
+      }
+    });
     if (
-      this.player.meeples.findIndex(meeple => meeple.active === true) !== -1
+      e.offsetX > this.skipper.x &&
+      e.offsetX < this.skipper.x + this.skipper.width &&
+      e.offsetY > this.skipper.y &&
+      e.offsetY < this.skipper.y + this.skipper.height
+    ) {
+      this.skipper.skip();
+      this.player = players[this.skipper.activePlayerIndex];
+    }
+    this.draw();
+  };
+  handleSettlementBuild = e => {
+    if (
+      this.player.meeples.findIndex(
+        meeple => meeple.active === true && meeple.type === "settlement"
+      ) !== -1
     ) {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(meeple => meeple.active === true)
@@ -54,34 +91,95 @@ class Interface {
                   m.taken = true;
                 }
               });
+              hex.roadMarkers.forEach(m => {
+                if (
+                  m.x > marker.x - hexRadius &&
+                  m.x < marker.x + hexRadius &&
+                  m.y > marker.y - hexRadius &&
+                  m.y < marker.y + hexRadius
+                ) {
+                  m.canBuild.push(this.player);
+                }
+              });
             });
           }
         });
       });
     }
-    this.player.meeples.forEach(meeple => {
-      if (!meeple.inPlay) {
-        const { x, y, width, height } = meeple;
-        meeple.active = false;
-        if (
-          e.offsetX > x &&
-          e.offsetX < x + width &&
-          e.offsetY > y &&
-          e.offsetY < y + height
-        ) {
-          meeple.active = true;
-        }
-      }
-    });
+  };
+  handleRoadBuild = e => {
     if (
-      e.offsetX > this.skipper.x &&
-      e.offsetX < this.skipper.x + this.skipper.width &&
-      e.offsetY > this.skipper.y &&
-      e.offsetY < this.skipper.y + this.skipper.height
+      this.player.meeples.findIndex(
+        meeple => meeple.active === true && meeple.type === "road"
+      ) !== -1
     ) {
-      this.skipper.skip();
-      this.player = players[this.skipper.activePlayerIndex];
+      const activeMeeple = this.player.meeples[
+        this.player.meeples.findIndex(meeple => meeple.active === true)
+      ];
+      board.hexes.forEach(hex => {
+        hex.roadMarkers.forEach(marker => {
+          const { x, y, width, height } = marker;
+          if (
+            e.offsetX > x - width / 2 &&
+            e.offsetX < x + width / 2 &&
+            e.offsetY > y - height / 2 &&
+            e.offsetY < y + height / 2 &&
+            !marker.taken &&
+            marker.canBuild.includes(this.player)
+          ) {
+            activeMeeple.x = x - activeMeeple.width / 2;
+            activeMeeple.y = y - activeMeeple.height / 2;
+            activeMeeple.inPlay = true;
+            activeMeeple.active = false;
+            activeMeeple.direction = marker.direction;
+            marker.taken = true;
+            board.hexes.forEach(hex => {
+              hex.roadMarkers.forEach(m => {
+                if (
+                  m.x > marker.x - hexRadius - 5 &&
+                  m.x < marker.x + hexRadius + 5 &&
+                  m.y > marker.y - hexRadius - 5 &&
+                  m.y < marker.y + hexRadius + 5
+                ) {
+                  m.active = true;
+                  m.canBuild.push(this.player);
+                }
+              });
+            });
+          }
+        });
+      });
     }
-    this.draw();
+  };
+  handleCityBuild = e => {
+    if (
+      this.player.meeples.findIndex(
+        meeple => meeple.active === true && meeple.type === "city"
+      ) !== -1
+    ) {
+      const activeMeeple = this.player.meeples[
+        this.player.meeples.findIndex(
+          meeple => meeple.active === true && meeple.type === "city"
+        )
+      ];
+      this.player.meeples.forEach(meeple => {
+        if (meeple.type === "settlement" && meeple.inPlay) {
+          if (
+            e.offsetX > meeple.x &&
+            e.offsetX < meeple.x + meeple.width &&
+            e.offsetY > meeple.y &&
+            e.offsetY < meeple.y + meeple.height
+          ) {
+            activeMeeple.x = meeple.x;
+            activeMeeple.y = meeple.y;
+            meeple.x = meeple.initialX;
+            meeple.y = meeple.initialY;
+            meeple.inPlay = false;
+            activeMeeple.active = false;
+            activeMeeple.inPlay = true;
+          }
+        }
+      });
+    }
   };
 }

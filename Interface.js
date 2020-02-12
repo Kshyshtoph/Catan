@@ -25,6 +25,7 @@ class Interface {
     }
     players.forEach(player => player.drawPlayingMeeples());
     this.player.drawMeeples();
+    this.player.drawResources();
     this.skipper.draw();
   };
   handleClick = e => {
@@ -73,13 +74,16 @@ class Interface {
             e.offsetX < x + width / 2 &&
             e.offsetY > y - height / 2 &&
             e.offsetY < y + height / 2 &&
-            !marker.taken
+            !marker.taken &&
+            (this.player.freeSettlement || this.player.canAffordSettlement)
           ) {
             activeMeeple.x = x - activeMeeple.height / 2;
             activeMeeple.y = y - activeMeeple.width / 2;
             activeMeeple.inPlay = true;
             activeMeeple.active = false;
             marker.taken = true;
+            marker.ocupation = this.player;
+            this.player.freeSettlement = false;
             board.hexes.forEach(hex => {
               hex.buildingMarkers.forEach(m => {
                 if (
@@ -111,7 +115,8 @@ class Interface {
     if (
       this.player.meeples.findIndex(
         meeple => meeple.active === true && meeple.type === "road"
-      ) !== -1
+      ) !== -1 &&
+      (this.player.freeRoad || this.player.canAffordRoad)
     ) {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(meeple => meeple.active === true)
@@ -133,6 +138,7 @@ class Interface {
             activeMeeple.active = false;
             activeMeeple.direction = marker.direction;
             marker.taken = true;
+            this.player.freeRoad = false;
             board.hexes.forEach(hex => {
               hex.roadMarkers.forEach(m => {
                 if (

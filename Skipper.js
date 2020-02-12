@@ -6,6 +6,7 @@ class Skipper {
     this.y = 475;
     this.width = 100;
     this.height = 60;
+    this.dice = new Dice();
   }
   skip = () => {
     this.activePlayerIndex++;
@@ -14,9 +15,14 @@ class Skipper {
       currentRound++;
     }
     currentPlayer = players[this.activePlayerIndex];
+    if (currentRound <= 2) {
+      currentPlayer.freeRoad = true;
+      currentPlayer.freeSettlement = true;
+    }
   };
   draw = () => {
     ctx.fillStyle = "green";
     ctx.fillRect(this.x, this.y, this.width, this.height);
+    this.dice.draw();
   };
 }

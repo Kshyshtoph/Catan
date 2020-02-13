@@ -93,10 +93,13 @@ class Hex {
     });
   };
   payResources = () => {
-    if (diceResult === this.number) {
+    if (
+      diceResult === this.number &&
+      !(this.x === board.thief.x && this.y === board.thief.y)
+    ) {
       switch (this.colour) {
         case "green":
-          this.buildingMarkers.forEach(marker => {
+          this.buildingMarkers(marker => {
             if (marker.ocupation) {
               marker.ocupation.resources[0] += 1;
             }

@@ -24,10 +24,11 @@ class Interface {
       board.drawHexes();
     }
     players.forEach(player => player.drawPlayingMeeples());
-    this.player.drawMeeples();
-    this.player.drawResources();
+    currentPlayer.drawMeeples();
+    currentPlayer.drawResources();
     this.skipper.draw();
     market.draw();
+    board.thief.draw();
     if (market.active) {
       market.drawPopup();
     }
@@ -39,6 +40,7 @@ class Interface {
       this.handleCityBuild(e);
       this.handlePopupShow(e);
       this.handleMeepleSelect(e);
+      this.handleThiefSetting(e);
       this.handleSkipping(e);
     } else {
       market.handlePopup(e);
@@ -212,6 +214,7 @@ class Interface {
         player => player === currentPlayer
       );
       market.active = true;
+      market.isOfferSet = false;
     }
   };
   handleSkipping = e => {
@@ -223,6 +226,22 @@ class Interface {
     ) {
       this.skipper.skip();
       this.player = players[this.skipper.activePlayerIndex];
+    }
+  };
+  handleThiefSetting = e => {
+    if (!board.thief.isSet) {
+      let nearest = 300;
+      board.hexes.forEach(hex => {
+        const distance = Math.sqrt(
+          Math.pow(e.offsetX - hex.x, 2) + Math.pow(e.offsetY - hex.y, 2)
+        );
+        if (distance < nearest) {
+          nearest = distance;
+          board.thief.x = hex.x;
+          board.thief.y = hex.y;
+          board.thief.isSet = true;
+        }
+      });
     }
   };
 }

@@ -27,6 +27,7 @@ class Board {
     this.hexRadius = hexRadius;
     this.hexHeight = hexRadius * Math.sqrt(3);
     this.dice = new Dice();
+    this.thief = new Thief();
   }
   pushNubers = () => {
     for (let i = 2; i <= 12; i++) {
@@ -55,6 +56,12 @@ class Board {
           Math.floor(Math.random() * this.colours.length),
           1
         );
+        if (colour[0] === "burlywood") {
+          this.thief.x = ((i * 3) / 2) * hexRadius;
+          this.thief.y =
+            j * this.hexHeight + ((diagonal - count) / 2) * this.hexHeight;
+          this.thief.isSet = true;
+        }
         const number =
           colour[0] !== "burlywood"
             ? this.numbers.splice(

@@ -16,22 +16,29 @@ class Skipper {
     currentPlayer = players[this.activePlayerIndex];
   };
   skip = () => {
-    this.activePlayerIndex++;
-    if (this.activePlayerIndex == players.length) {
-      this.activePlayerIndex = 0;
-      currentRound++;
+    if (board.thief.isSet) {
+      this.activePlayerIndex++;
+      if (this.activePlayerIndex == players.length) {
+        this.activePlayerIndex = 0;
+        currentRound++;
+      }
+      currentPlayer = players[this.activePlayerIndex];
+      if (currentRound <= 2) {
+        currentPlayer.freeRoad = true;
+        currentPlayer.freeSettlement = true;
+      }
+      if (currentRound > 2) {
+        diceResult = board.dice.roll();
+        if (diceResult === 7) {
+          board.thief.isSet = false;
+          board.thief.x = 25;
+          board.thief.y = 25;
+        }
+      }
+      board.hexes.forEach(hex => {
+        hex.payResources();
+      });
     }
-    currentPlayer = players[this.activePlayerIndex];
-    if (currentRound <= 2) {
-      currentPlayer.freeRoad = true;
-      currentPlayer.freeSettlement = true;
-    }
-    if (currentRound > 2) {
-      diceResult = board.dice.roll();
-    }
-    board.hexes.forEach(hex => {
-      hex.payResources();
-    });
   };
   draw = () => {
     ctx.fillStyle = "green";

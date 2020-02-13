@@ -31,7 +31,9 @@ class Market {
     ctx.fillStyle = "burlywood";
     ctx.fillRect(0, 100, 600, 400);
     ctx.strokeRect(0, 100, 600, 400);
-    ctx.drawImage(this.closeBtn, 550, 100);
+    if (!this.isOfferSet) {
+      ctx.drawImage(this.closeBtn, 550, 100);
+    }
     ctx.drawImage(this.DealWithOtherPlayerBtn, 125, 100);
     ctx.drawImage(this.DealWithBankBtn, 275, 100);
     ctx.strokeStyle = "green";
@@ -73,11 +75,15 @@ class Market {
       }
     });
     ctx.drawImage(this.acceptBtn, 550, 450);
+    if (this.isOfferSet) {
+      ctx.drawImage(this.closeBtn, 500, 450);
+    }
   };
   handlePopup = e => {
     this.handlePopupClose(e);
     this.chooseMerchant(e);
     this.handleOffer(e);
+    this.handleDenial(e);
 
     if (
       e.offsetX < 600 &&
@@ -91,38 +97,38 @@ class Market {
       } else {
         if (this.checkCanTrade()) {
           this.isOfferSet = false;
+          this.deal = true;
           currentPlayer.resources.forEach((resource, index) => {
             currentPlayer.resources[index] -= this.demands[index];
             currentPlayer.resources[index] += this.offer[index];
+            players[this.tradingPlayerIndex].resources[index] += this.demands[
+              index
+            ];
+            players[this.tradingPlayerIndex].resources[index] -= this.offer[
+              index
+            ];
           });
-          this.deal = true;
         }
       }
       this.activePlayerIndex++;
-      if (this.activePlayerIndex == players.length) {
+      if (this.activePlayerIndex === players.length) {
         this.activePlayerIndex = 0;
       }
       currentPlayer = players[this.activePlayerIndex];
+      if (players[this.tradingPlayerIndex] === currentPlayer) {
+        this.closePopup();
+      }
       if (this.activePlayerIndex === this.tradingPlayerIndex && this.deal) {
-        this.active = false;
-        this.dealWith = "otherPlayer";
+        this.closePopup();
         currentPlayer.resources.forEach((resource, index) => {
           currentPlayer.resources[index] += this.demands[index];
           currentPlayer.resources[index] -= this.offer[index];
         });
-
-        this.isOfferSet = false;
-        this.offer = [0, 0, 0, 0, 0];
-        this.demands = [0, 0, 0, 0, 0];
       } else if (
         this.currentPlayerIndex === this.tradingPlayerIndex &&
         !this.deal
       ) {
-        this.active = false;
-        this.isOfferSet = false;
-        this.dealWith = "otherPlayer";
-        this.offer = [0, 0, 0, 0, 0];
-        this.demands = [0, 0, 0, 0, 0];
+        this.closePopup();
       }
     }
   };
@@ -148,12 +154,10 @@ class Market {
       e.offsetX > 550 &&
       e.offsetX < 600 &&
       e.offsetY > 100 &&
-      e.offsetY < 150
+      e.offsetY < 150 &&
+      !this.isOfferSet
     ) {
-      this.active = false;
-      this.dealWith = "otherPlayer";
-      this.offer = [0, 0, 0, 0, 0];
-      this.demands = [0, 0, 0, 0, 0];
+      this.closePopup();
     }
   };
   chooseMerchant = e => {
@@ -214,5 +218,30 @@ class Market {
         this.offer[i]--;
       }
     });
+  };
+  handleDenial = e => {
+    if (
+      e.offsetX > 500 &&
+      e.offsetX < 550 &&
+      e.offsetY > 450 &&
+      e.offsetY < 500 &&
+      this.isOfferSet
+    ) {
+      this.activePlayerIndex++;
+      if (this.activePlayerIndex == players.length) {
+        this.activePlayerIndex = 0;
+      }
+      currentPlayer = players[this.activePlayerIndex];
+      if (currentPlayer === players[this.tradingPlayerIndex]) {
+        this.closePopup();
+      }
+    }
+  };
+  closePopup = () => {
+    this.active = false;
+    this.isOfferSet = false;
+    this.offer = [0, 0, 0, 0, 0];
+    this.demands = [0, 0, 0, 0, 0];
+    this.dealWith = "otherPlayer";
   };
 }

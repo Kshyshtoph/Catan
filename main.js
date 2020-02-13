@@ -8,11 +8,11 @@ const players = [new Player("red"), new Player("beige")];
 let currentPlayer = players[0];
 let currentRound = 1;
 let diceResult = 0;
+const market = new Market();
 const board = new Board(boardRadius, hexRadius);
 const interface = new Interface(players[0]);
 board.pushNubers();
 board.createHexes();
 board.drawHexes();
 interface.draw();
-
 canvas.addEventListener("click", interface.handleClick);

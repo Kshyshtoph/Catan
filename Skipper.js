@@ -8,6 +8,13 @@ class Skipper {
     this.height = 60;
     this.dice = new Dice();
   }
+  trade = () => {
+    this.activePlayerIndex++;
+    if (this.activePlayerIndex == players.length) {
+      this.activePlayerIndex = 0;
+    }
+    currentPlayer = players[this.activePlayerIndex];
+  };
   skip = () => {
     this.activePlayerIndex++;
     if (this.activePlayerIndex == players.length) {
@@ -19,7 +26,9 @@ class Skipper {
       currentPlayer.freeRoad = true;
       currentPlayer.freeSettlement = true;
     }
-    diceResult = board.dice.roll();
+    if (currentRound > 2) {
+      diceResult = board.dice.roll();
+    }
     board.hexes.forEach(hex => {
       hex.payResources();
     });

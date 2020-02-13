@@ -37,10 +37,12 @@ class Player {
     });
   };
   drawResources() {
+    ctx.font = "30px Arial";
     const colours = ["green", "lime", "brown", "gray", "yellow"];
     colours.forEach((colour, i) => {
       ctx.fillStyle = colour;
       ctx.fillRect(i * 60 + 10, 500, 50, 75);
+      ctx.strokeRect(i * 60 + 10, 500, 50, 75);
       ctx.fillStyle = "black";
       ctx.fillText(this.resources[i], i * 60 + 30, 560);
     });

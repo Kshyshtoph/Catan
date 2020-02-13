@@ -83,6 +83,8 @@ class Board {
     this.hexes.forEach(hex => {
       hex.draw();
     });
-    this.dice.draw(diceResult);
+    if (currentRound > 2) {
+      this.dice.draw(diceResult);
+    }
   };
 }

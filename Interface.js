@@ -27,34 +27,23 @@ class Interface {
     this.player.drawMeeples();
     this.player.drawResources();
     this.skipper.draw();
+    market.draw();
+    if (market.active) {
+      market.drawPopup();
+    }
   };
   handleClick = e => {
-    this.handleSettlementBuild(e);
-    this.handleRoadBuild(e);
-    this.handleCityBuild(e);
-    this.player.meeples.forEach(meeple => {
-      if (!meeple.inPlay) {
-        const { x, y, width, height } = meeple;
-        meeple.active = false;
-        if (
-          e.offsetX > x &&
-          e.offsetX < x + width &&
-          e.offsetY > y &&
-          e.offsetY < y + height
-        ) {
-          meeple.active = true;
-        }
-      }
-    });
-    if (
-      e.offsetX > this.skipper.x &&
-      e.offsetX < this.skipper.x + this.skipper.width &&
-      e.offsetY > this.skipper.y &&
-      e.offsetY < this.skipper.y + this.skipper.height
-    ) {
-      this.skipper.skip();
-      this.player = players[this.skipper.activePlayerIndex];
+    if (!market.active) {
+      this.handleSettlementBuild(e);
+      this.handleRoadBuild(e);
+      this.handleCityBuild(e);
+      this.handlePopupShow(e);
+      this.handleMeepleSelect(e);
+      this.handleSkipping(e);
+    } else {
+      market.handlePopup(e);
     }
+
     this.draw();
   };
   handleSettlementBuild = e => {
@@ -194,6 +183,46 @@ class Interface {
           }
         }
       });
+    }
+  };
+  handleMeepleSelect = e => {
+    this.player.meeples.forEach(meeple => {
+      if (!meeple.inPlay) {
+        const { x, y, width, height } = meeple;
+        meeple.active = false;
+        if (
+          e.offsetX > x &&
+          e.offsetX < x + width &&
+          e.offsetY > y &&
+          e.offsetY < y + height
+        ) {
+          meeple.active = true;
+        }
+      }
+    });
+  };
+  handlePopupShow = e => {
+    if (
+      e.offsetX > market.x &&
+      e.offsetX < market.x + market.width &&
+      e.offsetY > market.y &&
+      e.offsetY < market.y + market.height
+    ) {
+      market.activePlayerIndex = players.findIndex(
+        player => player === currentPlayer
+      );
+      market.active = true;
+    }
+  };
+  handleSkipping = e => {
+    if (
+      e.offsetX > this.skipper.x &&
+      e.offsetX < this.skipper.x + this.skipper.width &&
+      e.offsetY > this.skipper.y &&
+      e.offsetY < this.skipper.y + this.skipper.height
+    ) {
+      this.skipper.skip();
+      this.player = players[this.skipper.activePlayerIndex];
     }
   };
 }

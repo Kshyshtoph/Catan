@@ -4,9 +4,6 @@ class Player {
     this.meeples = [];
     this.freeSettlement = true;
     this.freeRoad = true;
-    this.canAffordRoad = false;
-    this.canAffordSettlement = false;
-    this.canAffordCity = false;
     this.pushMeeples();
     this.pushRoads();
     this.resources = [0, 0, 0, 0, 0];
@@ -47,4 +44,23 @@ class Player {
       ctx.fillText(this.resources[i], i * 60 + 30, 560);
     });
   }
+  canAffordSettlement = () => {
+    if (
+      this.resources[0] >= 1 &&
+      this.resources[2] >= 1 &&
+      this.resources[1] >= 1 &&
+      this.resources[4] >= 1
+    )
+      return true;
+    else return false;
+  };
+  canAffordRoad = () => {
+    if (this.resources[0] >= 1 && this.resources[2] >= 1) return true;
+    else return false;
+  };
+  canAffordCity = () => {
+    if (this.resources[3] >= 3 && this.resources[4] >= 2) {
+      return true;
+    } else return false;
+  };
 }

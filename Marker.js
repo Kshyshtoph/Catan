@@ -8,11 +8,26 @@ class Marker {
     this.taken = false;
     this.type = "building";
     this.ocupation = null;
+    this.canBuild = [];
   }
   draw = () => {
-    if (
+    if (currentRound <= 2) {
+      if (
+        !this.taken &&
+        (currentPlayer.freeSettlement || currentPlayer.canAffordSettlement())
+      ) {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(
+          this.x - this.width / 2,
+          this.y - this.height / 2,
+          this.width,
+          this.height
+        );
+      }
+    } else if (
+      this.canBuild.includes(currentPlayer) &&
       !this.taken &&
-      (currentPlayer.freeSettlement || currentPlayer.canAffordSettlement)
+      currentPlayer.canAffordSettlement()
     ) {
       ctx.fillStyle = "blue";
       ctx.fillRect(
@@ -35,7 +50,7 @@ class RoadMarker extends Marker {
     if (
       !this.taken &&
       this.canBuild.includes(currentPlayer) &&
-      (currentPlayer.freeRoad || currentPlayer.canAffordRoad)
+      (currentPlayer.freeRoad || currentPlayer.canAffordRoad())
     ) {
       ctx.fillStyle = "blue";
       ctx.fillRect(

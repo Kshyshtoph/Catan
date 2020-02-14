@@ -99,7 +99,7 @@ class Hex {
     ) {
       switch (this.colour) {
         case "green":
-          this.buildingMarkers(marker => {
+          this.buildingMarkers.forEach(marker => {
             if (marker.ocupation) {
               marker.ocupation.resources[0] += 1;
             }

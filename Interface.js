@@ -66,7 +66,7 @@ class Interface {
             e.offsetY > y - height / 2 &&
             e.offsetY < y + height / 2 &&
             !marker.taken &&
-            (this.player.freeSettlement || this.player.canAffordSettlement)
+            (this.player.freeSettlement || this.player.canAffordSettlement())
           ) {
             activeMeeple.x = x - activeMeeple.height / 2;
             activeMeeple.y = y - activeMeeple.width / 2;
@@ -74,6 +74,12 @@ class Interface {
             activeMeeple.active = false;
             marker.taken = true;
             marker.ocupation = this.player;
+            if (!this.player.freeSettlement) {
+              this.player.resources[0] -= 1;
+              this.player.resources[2] -= 1;
+              this.player.resources[4] -= 1;
+              this.player.resources[1] -= 1;
+            }
             this.player.freeSettlement = false;
             board.hexes.forEach(hex => {
               hex.buildingMarkers.forEach(m => {
@@ -115,7 +121,7 @@ class Interface {
       this.player.meeples.findIndex(
         meeple => meeple.active === true && meeple.type === "road"
       ) !== -1 &&
-      (this.player.freeRoad || this.player.canAffordRoad)
+      (this.player.freeRoad || this.player.canAffordRoad())
     ) {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(meeple => meeple.active === true)
@@ -137,6 +143,7 @@ class Interface {
             activeMeeple.active = false;
             activeMeeple.direction = marker.direction;
             marker.taken = true;
+            marker.ocupation = currentPlayer;
             this.player.freeRoad = false;
             board.hexes.forEach(hex => {
               hex.roadMarkers.forEach(m => {
@@ -150,6 +157,15 @@ class Interface {
                   m.canBuild.push(this.player);
                 }
               });
+              hex.buildingMarkers.forEach(m => {
+                if (
+                  m.x > marker.x - hexRadius &&
+                  m.x < marker.x + hexRadius &&
+                  m.y > marker.y - hexRadius &&
+                  m.y < marker.y + hexRadius
+                )
+                  m.canBuild.push(this.player);
+              });
             });
           }
         });
@@ -160,7 +176,8 @@ class Interface {
     if (
       this.player.meeples.findIndex(
         meeple => meeple.active === true && meeple.type === "city"
-      ) !== -1
+      ) !== -1 &&
+      this.player.canAffordCity()
     ) {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(

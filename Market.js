@@ -90,47 +90,8 @@ class Market {
       e.offsetX > 550 &&
       e.offsetY < 500 &&
       e.offsetY > 450
-    ) {
-      if (!this.isOfferSet) {
-        this.isOfferSet = true;
-        this.tradingPlayerIndex = this.activePlayerIndex;
-      } else {
-        if (this.checkCanTrade()) {
-          this.isOfferSet = false;
-          this.deal = true;
-          currentPlayer.resources.forEach((resource, index) => {
-            currentPlayer.resources[index] -= this.demands[index];
-            currentPlayer.resources[index] += this.offer[index];
-            players[this.tradingPlayerIndex].resources[index] += this.demands[
-              index
-            ];
-            players[this.tradingPlayerIndex].resources[index] -= this.offer[
-              index
-            ];
-          });
-        }
-      }
-      this.activePlayerIndex++;
-      if (this.activePlayerIndex === players.length) {
-        this.activePlayerIndex = 0;
-      }
-      currentPlayer = players[this.activePlayerIndex];
-      if (players[this.tradingPlayerIndex] === currentPlayer) {
-        this.closePopup();
-      }
-      if (this.activePlayerIndex === this.tradingPlayerIndex && this.deal) {
-        this.closePopup();
-        currentPlayer.resources.forEach((resource, index) => {
-          currentPlayer.resources[index] += this.demands[index];
-          currentPlayer.resources[index] -= this.offer[index];
-        });
-      } else if (
-        this.currentPlayerIndex === this.tradingPlayerIndex &&
-        !this.deal
-      ) {
-        this.closePopup();
-      }
-    }
+    )
+      this.handleTrade();
   };
   checkCanTrade = () => {
     for (let i = 0; i < 5; i++) {
@@ -243,5 +204,65 @@ class Market {
     this.offer = [0, 0, 0, 0, 0];
     this.demands = [0, 0, 0, 0, 0];
     this.dealWith = "otherPlayer";
+  };
+  handleTrade = () => {
+    if (this.dealWith === "otherPlayer") {
+      if (!this.isOfferSet) {
+        this.isOfferSet = true;
+        this.tradingPlayerIndex = this.activePlayerIndex;
+        this.activePlayerIndex++;
+      } else {
+        if (this.checkCanTrade()) {
+          this.deal = true;
+          currentPlayer.resources.forEach((resource, index) => {
+            currentPlayer.resources[index] -= this.demands[index];
+            currentPlayer.resources[index] += this.offer[index];
+            players[this.tradingPlayerIndex].resources[index] += this.demands[
+              index
+            ];
+            players[this.tradingPlayerIndex].resources[index] -= this.offer[
+              index
+            ];
+          });
+          this.activePlayerIndex = this.tradingPlayerIndex;
+          this.closePopup();
+        }
+      }
+      if (this.activePlayerIndex === players.length) {
+        this.activePlayerIndex = 0;
+      }
+      currentPlayer = players[this.activePlayerIndex];
+      if (
+        players[this.tradingPlayerIndex] === currentPlayer &&
+        this.isOfferSet
+      ) {
+      }
+      if (this.activePlayerIndex === this.tradingPlayerIndex && this.deal) {
+        currentPlayer.resources.forEach((resource, index) => {
+          currentPlayer.resources[index] += this.demands[index];
+          currentPlayer.resources[index] -= this.offer[index];
+        });
+      } else if (
+        this.currentPlayerIndex === this.tradingPlayerIndex &&
+        !this.deal
+      ) {
+        this.closePopup();
+      }
+    } else {
+      let offeredSuplies = 0,
+        demandedSupplies = 0;
+      this.offer.forEach(supply => {
+        offeredSuplies += supply;
+      });
+      this.demands.forEach(demand => {
+        demandedSupplies += demand;
+      });
+      if (offeredSuplies === 4 * demandedSupplies) {
+        currentPlayer.resources.forEach((resource, index) => {
+          currentPlayer.resources[index] += this.demands[index];
+        });
+      }
+      this.closePopup();
+    }
   };
 }

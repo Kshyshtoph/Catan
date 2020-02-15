@@ -131,6 +131,10 @@ class Interface {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(meeple => meeple.active === true)
       ];
+      if (!this.player.freeRoad) {
+        this.player.resources[0] -= 1;
+        this.player.resources[2] -= 1;
+      }
       board.hexes.forEach(hex => {
         hex.roadMarkers.forEach(marker => {
           const { x, y, width, height } = marker;
@@ -189,6 +193,8 @@ class Interface {
           meeple => meeple.active === true && meeple.type === "city"
         )
       ];
+      this.player.resources[3] -= 3;
+      this.player.resources[4] -= 2;
       this.player.meeples.forEach(meeple => {
         if (meeple.type === "settlement" && meeple.inPlay) {
           if (
@@ -267,11 +273,15 @@ class Interface {
         }
       });
       thiefHex.buildingMarkers.forEach(marker => {
-        if (marker.ocupation) {
+        if (
+          marker.ocupation &&
+          !board.thief.stealFrom.includes(marker.ocupation) &&
+          marker.ocupation !== this.player
+        ) {
           board.thief.stealFrom.push(marker.ocupation);
         }
       });
-      board.thief.active = true;
+      if (board.thief.stealFrom !== []) board.thief.active = true;
     }
   };
 }

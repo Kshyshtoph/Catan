@@ -6,7 +6,7 @@ class Thief {
     this.stealFrom = [];
     this.active = false;
     this.popupWidth = 0;
-    this.steal = null;
+    this.stealFrom = [];
   }
   draw = () => {
     ctx.fillStyle = "black";
@@ -32,23 +32,23 @@ class Thief {
         e.offsetY > 225 &&
         e.offsetY < 275
       ) {
-        this.steal = this.stealFrom[i];
+        const steal = this.stealFrom[i];
         this.active = false;
-        this.handleStealing();
+        this.handleStealing(steal);
         this.stealFrom = [];
       }
     }
   };
-  handleStealing = () => {
+  handleStealing = steal => {
     const stealIndexes = [];
-    for (let i = 0; i < this.steal.resources.length; i++) {
-      if (this.steal.resources[i] > 0) {
+    for (let i = 0; i < steal.resources.length; i++) {
+      if (steal.resources[i] > 0) {
         stealIndexes.push(i);
       }
     }
     if (this.stealIndexes === []) return;
     const stealIndex = Math.floor(Math.random() * stealIndexes.length);
-    this.steal.resources[stealIndexes[stealIndex]] -= 1;
+    steal.resources[stealIndexes[stealIndex]] -= 1;
     currentPlayer.resources[stealIndexes[stealIndex]] += 1;
   };
 }

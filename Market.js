@@ -260,6 +260,7 @@ class Market {
       if (offeredSuplies === 4 * demandedSupplies) {
         currentPlayer.resources.forEach((resource, index) => {
           currentPlayer.resources[index] += this.demands[index];
+          currentPlayer.resources[index] -= this.offer[index];
         });
       }
       this.closePopup();

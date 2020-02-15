@@ -32,9 +32,12 @@ class Interface {
     if (market.active) {
       market.drawPopup();
     }
+    if (board.thief.active) {
+      board.thief.drawPlayersPopup();
+    }
   };
   handleClick = e => {
-    if (!market.active) {
+    if (!market.active && !board.thief.active) {
       this.handleSettlementBuild(e);
       this.handleRoadBuild(e);
       this.handleCityBuild(e);
@@ -42,8 +45,10 @@ class Interface {
       this.handleMeepleSelect(e);
       this.handleThiefSetting(e);
       this.handleSkipping(e);
-    } else {
+    } else if (market.active) {
       market.handlePopup(e);
+    } else {
+      board.thief.handlePlayersPopup(e);
     }
 
     this.draw();
@@ -248,6 +253,7 @@ class Interface {
   handleThiefSetting = e => {
     if (!board.thief.isSet) {
       let nearest = 300;
+      let thiefHex;
       board.hexes.forEach(hex => {
         const distance = Math.sqrt(
           Math.pow(e.offsetX - hex.x, 2) + Math.pow(e.offsetY - hex.y, 2)
@@ -257,8 +263,15 @@ class Interface {
           board.thief.x = hex.x;
           board.thief.y = hex.y;
           board.thief.isSet = true;
+          thiefHex = hex;
         }
       });
+      thiefHex.buildingMarkers.forEach(marker => {
+        if (marker.ocupation) {
+          board.thief.stealFrom.push(marker.ocupation);
+        }
+      });
+      board.thief.active = true;
     }
   };
 }

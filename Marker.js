@@ -50,7 +50,7 @@ class RoadMarker extends Marker {
     if (
       !this.taken &&
       this.canBuild.includes(currentPlayer) &&
-      (currentPlayer.freeRoad || currentPlayer.canAffordRoad())
+      (currentPlayer.freeRoads > 0 || currentPlayer.canAffordRoad())
     ) {
       ctx.fillStyle = "blue";
       ctx.fillRect(

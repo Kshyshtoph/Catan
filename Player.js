@@ -3,10 +3,13 @@ class Player {
     this.colour = colour;
     this.meeples = [];
     this.freeSettlement = true;
-    this.freeRoad = true;
+    this.freeRoads = 1;
     this.pushMeeples();
     this.pushRoads();
     this.resources = [0, 0, 0, 0, 0];
+    this.progressCards = [];
+    this.victoryPoints = 0;
+    this.freeResources = 0;
   }
   pushRoads = () => {
     for (let i = 0; i < 15; i++) {
@@ -62,5 +65,10 @@ class Player {
     if (this.resources[3] >= 3 && this.resources[4] >= 2) {
       return true;
     } else return false;
+  };
+  canAffordProgressCard = () => {
+    if (this.resources[1] > 0 && this.resources[3] > 0 && this.resources[4] > 0)
+      return true;
+    else return false;
   };
 }

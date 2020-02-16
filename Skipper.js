@@ -24,7 +24,7 @@ class Skipper {
       }
       currentPlayer = players[this.activePlayerIndex];
       if (currentRound <= 2) {
-        currentPlayer.freeRoad = true;
+        currentPlayer.freeRoads = 1;
         currentPlayer.freeSettlement = true;
       }
       if (currentRound > 2) {

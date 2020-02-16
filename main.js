@@ -9,6 +9,7 @@ let currentPlayer = players[0];
 let currentRound = 1;
 let diceResult = 0;
 const market = new Market();
+const progress = new Progress();
 const board = new Board(boardRadius, hexRadius);
 board.pushNubers();
 board.createHexes();

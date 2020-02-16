@@ -28,6 +28,7 @@ class Interface {
     currentPlayer.drawResources();
     this.skipper.draw();
     market.draw();
+    progress.draw();
     board.thief.draw();
     if (market.active) {
       market.drawPopup();
@@ -35,9 +36,24 @@ class Interface {
     if (board.thief.active) {
       board.thief.drawPlayersPopup();
     }
+    if (progress.active) {
+      progress.drawPopup();
+    }
+    if (progress.monopolyPopupActive) {
+      progress.drawMonopolyPopup();
+    }
+    if (progress.inventionPopupActive) {
+      progress.drawMonopolyPopup();
+    }
   };
   handleClick = e => {
-    if (!market.active && !board.thief.active) {
+    if (
+      !market.active &&
+      !board.thief.active &&
+      !progress.active &&
+      !progress.monopolyPopupActive &&
+      !progress.inventionPopupActive
+    ) {
       this.handleSettlementBuild(e);
       this.handleRoadBuild(e);
       this.handleCityBuild(e);
@@ -47,8 +63,14 @@ class Interface {
       this.handleSkipping(e);
     } else if (market.active) {
       market.handlePopup(e);
-    } else {
+    } else if (board.thief.active) {
       board.thief.handlePlayersPopup(e);
+    } else if (progress.active) {
+      progress.handlePopup(e);
+    } else if (progress.monopolyPopupActive) {
+      progress.handleMonopolyPopup(e);
+    } else {
+      progress.handleInventionPopup(e);
     }
 
     this.draw();
@@ -122,16 +144,17 @@ class Interface {
     }
   };
   handleRoadBuild = e => {
+    let roadBuilt = false;
     if (
       this.player.meeples.findIndex(
         meeple => meeple.active === true && meeple.type === "road"
       ) !== -1 &&
-      (this.player.freeRoad || this.player.canAffordRoad())
+      (this.player.freeRoads || this.player.canAffordRoad())
     ) {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(meeple => meeple.active === true)
       ];
-      if (!this.player.freeRoad) {
+      if (this.player.freeRoads === 0) {
         this.player.resources[0] -= 1;
         this.player.resources[2] -= 1;
       }
@@ -152,8 +175,8 @@ class Interface {
             activeMeeple.active = false;
             activeMeeple.direction = marker.direction;
             marker.taken = true;
+            roadBuilt = true;
             marker.ocupation = currentPlayer;
-            this.player.freeRoad = false;
             board.hexes.forEach(hex => {
               hex.roadMarkers.forEach(m => {
                 if (
@@ -179,6 +202,7 @@ class Interface {
           }
         });
       });
+      if (roadBuilt) this.player.freeRoads -= 1;
     }
   };
   handleCityBuild = e => {
@@ -243,6 +267,14 @@ class Interface {
       );
       market.active = true;
       market.isOfferSet = false;
+    }
+    if (
+      e.offsetX > progress.x &&
+      e.offsetX < progress.x + progress.width &&
+      e.offsetY > progress.y &&
+      e.offsetY < progress.y + progress.height
+    ) {
+      progress.active = true;
     }
   };
   handleSkipping = e => {

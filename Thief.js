@@ -15,6 +15,10 @@ class Thief {
     ctx.fill();
   };
   drawPlayersPopup = () => {
+    if (this.stealFrom.length === 0) {
+      this.active = false;
+      return;
+    }
     this.popupWidth = this.stealFrom.length * 100;
     const popupHeight = 100;
     ctx.fillStyle = "burlywood";

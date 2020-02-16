@@ -87,7 +87,5 @@ class Road {
     ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
     ctx.rotate((-this.direction * Math.PI) / 180);
     ctx.translate(-this.x - this.width / 2, -this.y - this.height / 2);
-    // ctx.fillStyle = "black";
-    // ctx.fillRect(this.x - 1, this.y - 1, 2, 2);
   };
 }

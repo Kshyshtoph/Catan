@@ -71,4 +71,11 @@ class Player {
       return true;
     else return false;
   };
+  drawVictoryPoints = () => {
+    ctx.fillStyle = "white";
+    ctx.fillRect(370, 0, 30, 30);
+    ctx.fillStyle = "black";
+    ctx.font = "30px Arial";
+    ctx.fillText(this.victoryPoints, 400, 30);
+  };
 }

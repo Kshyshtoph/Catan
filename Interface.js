@@ -29,6 +29,7 @@ class Interface {
     this.skipper.draw();
     market.draw();
     progress.draw();
+    this.player.drawVictoryPoints();
     board.thief.draw();
     if (market.active) {
       market.drawPopup();
@@ -84,6 +85,7 @@ class Interface {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(meeple => meeple.active === true)
       ];
+      let settlementBuilt = false;
       board.hexes.forEach(hex => {
         hex.buildingMarkers.forEach(marker => {
           const { x, y, width, height } = marker;
@@ -100,6 +102,7 @@ class Interface {
             activeMeeple.inPlay = true;
             activeMeeple.active = false;
             marker.taken = true;
+            settlementBuilt = true;
             marker.ocupation = this.player;
             if (!this.player.freeSettlement) {
               this.player.resources[0] -= 1;
@@ -141,6 +144,7 @@ class Interface {
           }
         });
       });
+      if (settlementBuilt) this.player.victoryPoints++;
     }
   };
   handleRoadBuild = e => {
@@ -154,10 +158,7 @@ class Interface {
       const activeMeeple = this.player.meeples[
         this.player.meeples.findIndex(meeple => meeple.active === true)
       ];
-      if (this.player.freeRoads === 0) {
-        this.player.resources[0] -= 1;
-        this.player.resources[2] -= 1;
-      }
+
       board.hexes.forEach(hex => {
         hex.roadMarkers.forEach(marker => {
           const { x, y, width, height } = marker;
@@ -202,10 +203,17 @@ class Interface {
           }
         });
       });
-      if (roadBuilt) this.player.freeRoads -= 1;
+      if (this.player.freeRoads === 0 && roadBuilt) {
+        this.player.resources[0] -= 1;
+        this.player.resources[2] -= 1;
+      }
+      if (roadBuilt && this.player.freeRoads !== 0) {
+        this.player.freeRoads -= 1;
+      }
     }
   };
   handleCityBuild = e => {
+    let cityBuilt = false;
     if (
       this.player.meeples.findIndex(
         meeple => meeple.active === true && meeple.type === "city"
@@ -217,8 +225,7 @@ class Interface {
           meeple => meeple.active === true && meeple.type === "city"
         )
       ];
-      this.player.resources[3] -= 3;
-      this.player.resources[4] -= 2;
+
       this.player.meeples.forEach(meeple => {
         if (meeple.type === "settlement" && meeple.inPlay) {
           if (
@@ -230,6 +237,7 @@ class Interface {
             activeMeeple.x = meeple.x;
             activeMeeple.y = meeple.y;
             meeple.x = meeple.initialX;
+            cityBuilt = true;
             meeple.y = meeple.initialY;
             meeple.inPlay = false;
             activeMeeple.active = false;
@@ -237,6 +245,10 @@ class Interface {
           }
         }
       });
+      if (cityBuilt) {
+        this.player.resources[3] -= 3;
+        this.player.resources[4] -= 2;
+      }
     }
   };
   handleMeepleSelect = e => {

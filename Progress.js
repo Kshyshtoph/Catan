@@ -110,6 +110,7 @@ class Progress {
         case 5:
           currentPlayer.freeResources = 2;
           this.inventionPopupActive = true;
+          break;
       }
       this.active = false;
     }

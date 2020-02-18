@@ -9,6 +9,7 @@ class Marker {
     this.type = "building";
     this.ocupation = null;
     this.canBuild = [];
+    this.city = false;
   }
   draw = () => {
     if (currentRound <= 2) {

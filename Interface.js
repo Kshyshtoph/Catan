@@ -243,11 +243,19 @@ class Interface {
             activeMeeple.active = false;
             activeMeeple.inPlay = true;
           }
+          board.hexes.forEach(hex => {
+            hex.buildingMarkers.forEach(marker => {
+              if (marker.x === activeMeeple.x && marker.y === activeMeeple.y) {
+                marker.city = true;
+              }
+            });
+          });
         }
       });
       if (cityBuilt) {
         this.player.resources[3] -= 3;
         this.player.resources[4] -= 2;
+        this.player.victoryPoints += 1;
       }
     }
   };

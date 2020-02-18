@@ -65,7 +65,10 @@ class Progress {
       e.offsetY < 266.5 + 75 &&
       currentPlayer.canAffordProgressCard()
     ) {
-      currentPlayer.progressCards.push(this.generateCard());
+      currentPlayer.progressCards.push({
+        type: this.generateCard(),
+        age: currentRound
+      });
       currentPlayer.resources[1] -= 1;
       currentPlayer.resources[3] -= 1;
       currentPlayer.resources[4] -= 1;
@@ -91,25 +94,35 @@ class Progress {
       e.offsetY > y &&
       e.offsetY < y + cardHeight
     ) {
-      switch (card) {
+      switch (card.type) {
         case 1:
-          board.thief.isSet = false;
-          currentPlayer.progressCards.splice(i, 1);
+          if (card.age < currentRound) {
+            board.thief.isSet = false;
+            currentPlayer.progressCards.splice(i, 1);
+          }
           break;
         case 2:
           currentPlayer.victoryPoints++;
           currentPlayer.progressCards.splice(i, 1);
           break;
         case 3:
-          this.monopolyPopupActive = true;
-          currentPlayer.progressCards.splice(i, 1);
+          if (card.age < currentRound) {
+            this.monopolyPopupActive = true;
+            currentPlayer.progressCards.splice(i, 1);
+          }
           break;
         case 4:
-          currentPlayer.freeRoads = 2;
+          if (card.age < currentRound) {
+            currentPlayer.freeRoads = 2;
+            currentPlayer.progressCards.splice(i, 1);
+          }
           break;
         case 5:
-          currentPlayer.freeResources = 2;
-          this.inventionPopupActive = true;
+          if (card.age < currentRound) {
+            currentPlayer.freeResources = 2;
+            currentPlayer.progressCards.splice(i, 1);
+            this.inventionPopupActive = true;
+          }
           break;
       }
       this.active = false;
@@ -117,7 +130,7 @@ class Progress {
   };
   handleCardDraw = () => {
     for (let i = 0; i < currentPlayer.progressCards.length; i++) {
-      switch (currentPlayer.progressCards[i]) {
+      switch (currentPlayer.progressCards[i].type) {
         case 1:
           ctx.drawImage(
             this.knight,

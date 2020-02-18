@@ -25,7 +25,13 @@ class Hex {
     this.roadMarkers.push(
       new RoadMarker(
         (this.corners[0][0] + this.corners[this.corners.length - 1][0]) / 2,
-        (this.corners[0][1] + this.corners[this.corners.length - 1][1]) / 2
+        (this.corners[0][1] + this.corners[this.corners.length - 1][1]) / 2,
+        this.switchDirection(
+          this.corners[0][0],
+          this.corners[this.corners.length - 1][0],
+          this.corners[0][1],
+          this.corners[this.corners.length - 1][1]
+        )
       )
     );
     for (let i = 1; i < this.corners.length; i++) {
@@ -103,12 +109,18 @@ class Hex {
             if (marker.ocupation) {
               marker.ocupation.resources[0] += 1;
             }
+            if (marker.city) {
+              marker.ocupation.resources[0] += 1;
+            }
           });
           break;
         case "lime":
           this.buildingMarkers.forEach(marker => {
             if (marker.ocupation) {
               marker.ocupation.resources[1] += 1;
+            }
+            if (marker.city) {
+              marker.ocupation.resources[0] += 1;
             }
           });
           break;
@@ -117,6 +129,9 @@ class Hex {
             if (marker.ocupation) {
               marker.ocupation.resources[2] += 1;
             }
+            if (marker.city) {
+              marker.ocupation.resources[0] += 1;
+            }
           });
           break;
         case "gray":
@@ -124,12 +139,18 @@ class Hex {
             if (marker.ocupation) {
               marker.ocupation.resources[3] += 1;
             }
+            if (marker.city) {
+              marker.ocupation.resources[0] += 1;
+            }
           });
           break;
         case "yellow":
           this.buildingMarkers.forEach(marker => {
             if (marker.ocupation) {
               marker.ocupation.resources[4] += 1;
+            }
+            if (marker.city) {
+              marker.ocupation.resources[0] += 1;
             }
           });
           break;

@@ -99,6 +99,7 @@ class Progress {
           if (card.age < currentRound) {
             board.thief.isSet = false;
             currentPlayer.progressCards.splice(i, 1);
+            currentPlayer.knightsPlayed++;
           }
           break;
         case 2:

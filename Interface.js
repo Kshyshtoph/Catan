@@ -30,6 +30,8 @@ class Interface {
     market.draw();
     progress.draw();
     this.player.drawVictoryPoints();
+    this.player.drawLongestRoad();
+    this.player.drawKnightsPlayed();
     board.thief.draw();
     if (market.active) {
       market.drawPopup();
@@ -176,6 +178,7 @@ class Interface {
             activeMeeple.active = false;
             activeMeeple.direction = marker.direction;
             marker.taken = true;
+            marker.ocupation = this.player;
             roadBuilt = true;
             marker.ocupation = currentPlayer;
             board.hexes.forEach(hex => {
@@ -188,6 +191,7 @@ class Interface {
                 ) {
                   m.active = true;
                   m.canBuild.push(this.player);
+                  activeMeeple.neighbours.push(m);
                 }
               });
               hex.buildingMarkers.forEach(m => {
@@ -206,9 +210,11 @@ class Interface {
       if (this.player.freeRoads === 0 && roadBuilt) {
         this.player.resources[0] -= 1;
         this.player.resources[2] -= 1;
+        this.player.findLongestRoad();
       }
       if (roadBuilt && this.player.freeRoads !== 0) {
         this.player.freeRoads -= 1;
+        this.player.findLongestRoad();
       }
     }
   };

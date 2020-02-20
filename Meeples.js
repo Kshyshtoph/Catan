@@ -57,6 +57,7 @@ class City extends Settlement {
 class Road {
   constructor(player, id) {
     this.colour = player.colour;
+    this.neighbours = [];
     this.inPlay = false;
     this.type = "road";
     this.id = id;

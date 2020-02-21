@@ -147,6 +147,16 @@ class Interface {
         });
       });
       if (settlementBuilt) this.player.victoryPoints++;
+      board.ports.forEach(port => {
+        if (
+          activeMeeple.x + activeMeeple.width / 2 <= port.x + port.radius &&
+          activeMeeple.x + activeMeeple.width / 2 >= port.x - port.radius &&
+          activeMeeple.y + activeMeeple.height / 2 >= port.y - port.radius &&
+          activeMeeple.y + activeMeeple.height / 2 <= port.y + port.radius
+        ) {
+          this.player.ports.push(port);
+        }
+      });
     }
   };
   handleRoadBuild = e => {

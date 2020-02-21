@@ -13,6 +13,7 @@ class Player {
     this.knightsPlayed = 0;
     this.crown = new Image();
     this.crown.src = "./img/crown.png";
+    this.ports = [];
   }
   pushRoads = () => {
     for (let i = 0; i < 15; i++) {
@@ -154,9 +155,9 @@ class Player {
   drawLongestRoad = () => {
     const longest = this.findLongestRoad();
     ctx.font = "30px Arial";
-    ctx.fillText(longest, 30, 450);
+    ctx.fillText(longest, 30, 470);
     if (currentLongestRoad.player === this) {
-      ctx.drawImage(this.crown, 25, 400);
+      ctx.drawImage(this.crown, 25, 420);
     }
   };
   drawKnightsPlayed = () => {
@@ -165,9 +166,9 @@ class Player {
       currentHighestKnightPower.player = this;
     }
     ctx.font = "30px Arial";
-    ctx.fillText(this.knightsPlayed, 60, 450);
+    ctx.fillText(this.knightsPlayed, 60, 470);
     if (currentHighestKnightPower.player === this) {
-      ctx.drawImage(this.crown, 55, 400);
+      ctx.drawImage(this.crown, 55, 420);
     }
   };
 }

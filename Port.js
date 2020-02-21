@@ -18,11 +18,5 @@ class Port {
     ctx.strokeStyle = "black";
     ctx.closePath();
     ctx.stroke();
-    // ctx.strokeRect(
-    //   this.x - this.radius,
-    //   this.y - this.radius,
-    //   2 * this.radius,
-    //   2 * this.radius
-    // );
   };
 }

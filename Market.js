@@ -249,19 +249,95 @@ class Market {
         this.closePopup();
       }
     } else {
+      const suppliesIndexes = [];
       let offeredSuplies = 0,
         demandedSupplies = 0;
-      this.offer.forEach(supply => {
+      this.offer.forEach((supply, index) => {
         offeredSuplies += supply;
+        if (supply !== 0) {
+          suppliesIndexes.push(index);
+          console.log(suppliesIndexes);
+        }
       });
       this.demands.forEach(demand => {
         demandedSupplies += demand;
       });
-      if (offeredSuplies === 4 * demandedSupplies) {
+      if (
+        offeredSuplies === 4 * demandedSupplies &&
+        suppliesIndexes.length === 1
+      ) {
         currentPlayer.resources.forEach((resource, index) => {
           currentPlayer.resources[index] += this.demands[index];
           currentPlayer.resources[index] -= this.offer[index];
         });
+      } else if (
+        offeredSuplies === 3 * demandedSupplies &&
+        suppliesIndexes.length === 1 &&
+        currentPlayer.ports.findIndex(port => port.type === "3/1") !== -1
+      ) {
+        currentPlayer.resources.forEach((resource, index) => {
+          currentPlayer.resources[index] += this.demands[index];
+          currentPlayer.resources[index] -= this.offer[index];
+        });
+      } else if (
+        offeredSuplies === 2 * demandedSupplies &&
+        suppliesIndexes.length === 1
+      ) {
+        switch (suppliesIndexes[0]) {
+          case 0:
+            if (
+              currentPlayer.ports.findIndex(port => port.type === "green") !==
+              -1
+            ) {
+              currentPlayer.resources.forEach((resource, index) => {
+                currentPlayer.resources[index] += this.demands[index];
+                currentPlayer.resources[index] -= this.offer[index];
+              });
+            }
+            break;
+          case 1:
+            if (
+              currentPlayer.ports.findIndex(port => port.type === "lime") !== -1
+            ) {
+              currentPlayer.resources.forEach((resource, index) => {
+                currentPlayer.resources[index] += this.demands[index];
+                currentPlayer.resources[index] -= this.offer[index];
+              });
+            }
+            break;
+          case 2:
+            if (
+              currentPlayer.ports.findIndex(port => port.type === "brown") !==
+              -1
+            ) {
+              currentPlayer.resources.forEach((resource, index) => {
+                currentPlayer.resources[index] += this.demands[index];
+                currentPlayer.resources[index] -= this.offer[index];
+              });
+            }
+            break;
+          case 3:
+            if (
+              currentPlayer.ports.findIndex(port => port.type === "gray") !== -1
+            ) {
+              currentPlayer.resources.forEach((resource, index) => {
+                currentPlayer.resources[index] += this.demands[index];
+                currentPlayer.resources[index] -= this.offer[index];
+              });
+            }
+            break;
+          case 4:
+            if (
+              currentPlayer.ports.findIndex(port => port.type === "yellow") !==
+              -1
+            ) {
+              currentPlayer.resources.forEach((resource, index) => {
+                currentPlayer.resources[index] += this.demands[index];
+                currentPlayer.resources[index] -= this.offer[index];
+              });
+            }
+            break;
+        }
       }
       this.closePopup();
     }

@@ -90,79 +90,41 @@ class Board {
   createPorts = () => {
     this.hexes.forEach(hex => {
       if (hex.id === 0) {
-        this.ports.push(
-          new Port(
-            (hex.corners[2][0] + hex.corners[3][0]) / 2,
-            (hex.corners[2][1] + hex.corners[3][1]) / 2
-          )
+        const [x, y] = getCenter(hex.corners, 2, 3)
+        this.ports.push(new Port(x, y)
         );
       } else if (hex.id === 1) {
+        const [x, y] = getCenter(hex.corners, 3, 4)
         this.ports.push(
-          new Port(
-            (hex.corners[3][0] + hex.corners[4][0]) / 2,
-            (hex.corners[3][1] + hex.corners[4][1]) / 2,
-            "green"
-          )
+          new Port(x, y, "green")
         );
       } else if (hex.id === 2) {
-        this.ports.push(
-          new Port(
-            (hex.corners[4][0] + hex.corners[5][0]) / 2,
-            (hex.corners[4][1] + hex.corners[5][1]) / 2
-          )
+        const [x, y] = getCenter(hex.corners, 4, 5)
+        this.ports.push(new Port(x, y)
         );
       } else if (hex.id === 11) {
-        this.ports.push(
-          new Port(
-            (hex.corners[3][0] + hex.corners[4][0]) / 2,
-            (hex.corners[3][1] + hex.corners[4][1]) / 2,
-            "brown"
-          )
+        const [x, y] = getCenter(hex.corners, 3, 4)
+        this.ports.push(new Port(x, y, "brown")
         );
       } else if (hex.id === 15) {
-        this.ports.push(
-          new Port(
-            (hex.corners[4][0] + hex.corners[5][0]) / 2,
-            (hex.corners[4][1] + hex.corners[5][1]) / 2
-          )
-        );
-      } else if (hex.id === 18) {
-        this.ports.push(
-          new Port(
-            (hex.corners[5][0] + hex.corners[0][0]) / 2,
-            (hex.corners[5][1] + hex.corners[0][1]) / 2,
-            "gray"
-          )
-        );
+        const [x, y] = getCenter(hex.corners, 4, 5)
+        this.ports.push(new Port(x, y));
+      }
+      else if (hex.id === 18) {
+        const [x, y] = getCenter(hex.corners, 5, 0)
+        this.ports.push(new Port(x, y, "gray"));
       } else if (hex.id === 16) {
-        this.ports.push(
-          new Port(
-            (hex.corners[1][0] + hex.corners[2][0]) / 2,
-            (hex.corners[1][1] + hex.corners[2][1]) / 2,
-            "yellow"
-          )
-        );
+        const [x, y] = getCenter(hex.corners, 1, 2)
+        this.ports.push(new Port(x, y, "yellow"));
       } else if (hex.id === 17) {
-        this.ports.push(
-          new Port(
-            (hex.corners[0][0] + hex.corners[1][0]) / 2,
-            (hex.corners[0][1] + hex.corners[1][1]) / 2
-          )
-        );
+        const [x, y] = getCenter(hex.corners, 0, 1)
+        this.ports.push(new Port(x, y));
       } else if (hex.id === 7) {
-        this.ports.push(
-          new Port(
-            (hex.corners[0][0] + hex.corners[1][0]) / 2,
-            (hex.corners[0][1] + hex.corners[1][1]) / 2
-          )
-        );
+        const [x, y] = getCenter(hex.corners, 0, 1)
+        this.ports.push(new Port(x, y));
       } else if (hex.id === 3) {
-        this.ports.push(
-          new Port(
-            (hex.corners[1][0] + hex.corners[2][0]) / 2,
-            (hex.corners[1][1] + hex.corners[2][1]) / 2,
-            "lime"
-          )
+        const [x, y] = getCenter(hex.corners, 1, 2)
+        this.ports.push(new Port(x, y, "lime")
         );
       }
     });

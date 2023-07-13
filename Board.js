@@ -91,26 +91,20 @@ class Board {
     this.hexes.forEach(hex => {
       if (hex.id === 0) {
         const [x, y] = getCenter(hex.corners, 2, 3)
-        this.ports.push(new Port(x, y)
-        );
+        this.ports.push(new Port(x, y));
       } else if (hex.id === 1) {
         const [x, y] = getCenter(hex.corners, 3, 4)
-        this.ports.push(
-          new Port(x, y, "green")
-        );
+        this.ports.push(new Port(x, y, "green"));
       } else if (hex.id === 2) {
         const [x, y] = getCenter(hex.corners, 4, 5)
-        this.ports.push(new Port(x, y)
-        );
+        this.ports.push(new Port(x, y));
       } else if (hex.id === 11) {
         const [x, y] = getCenter(hex.corners, 3, 4)
-        this.ports.push(new Port(x, y, "brown")
-        );
+        this.ports.push(new Port(x, y, "brown"));
       } else if (hex.id === 15) {
         const [x, y] = getCenter(hex.corners, 4, 5)
         this.ports.push(new Port(x, y));
-      }
-      else if (hex.id === 18) {
+      } else if (hex.id === 18) {
         const [x, y] = getCenter(hex.corners, 5, 0)
         this.ports.push(new Port(x, y, "gray"));
       } else if (hex.id === 16) {
@@ -124,8 +118,7 @@ class Board {
         this.ports.push(new Port(x, y));
       } else if (hex.id === 3) {
         const [x, y] = getCenter(hex.corners, 1, 2)
-        this.ports.push(new Port(x, y, "lime")
-        );
+        this.ports.push(new Port(x, y, "lime"));
       }
     });
   };

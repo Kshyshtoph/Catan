@@ -1,6 +1,6 @@
 class Hex {
-  constructor(colour, id, number, location, y, radius) {
-    this.colour = colour[0];
+  constructor(color, id, number, location, y, radius) {
+    this.color = color;
     this.id = id;
     this.number = number ? number[0] : "";
     this.location = location;
@@ -70,16 +70,16 @@ class Hex {
   };
   draw = () => {
     const numberOfEdges = 6;
-    ctx.fillStyle = this.colour;
+    ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.moveTo(this.x + this.radius, this.y);
     ctx.font = "30px Arial";
     for (let i = 0; i < numberOfEdges; i++) {
       ctx.lineTo(
         this.x +
-          Math.cos(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius,
+        Math.cos(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius,
         this.y -
-          Math.sin(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius
+        Math.sin(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius
       );
     }
     ctx.closePath();
@@ -103,7 +103,7 @@ class Hex {
       diceResult === this.number &&
       !(this.x === board.thief.x && this.y === board.thief.y)
     ) {
-      switch (this.colour) {
+      switch (this.color) {
         case "green":
           this.buildingMarkers.forEach(marker => {
             if (marker.ocupation) {

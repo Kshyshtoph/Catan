@@ -1,26 +1,20 @@
 class Board {
   constructor(boardRadius, hexRadius) {
     this.numbers = [];
-    this.colours = [
-      "lime",
-      "lime",
-      "lime",
-      "lime",
-      "green",
-      "green",
-      "green",
-      "green",
-      "gray",
-      "gray",
-      "gray",
-      "yellow",
-      "yellow",
-      "yellow",
-      "yellow",
-      "brown",
-      "brown",
-      "brown",
-      "burlywood"
+    const limes = Array(4).fill("lime")
+    const greens = Array(4).fill("green")
+    const grays = Array(3).fill("gray")
+    const yellows = Array(4).fill("yellow")
+    const browns = Array(3).fill("brown")
+    const burlywoods = ["burlywood"]
+
+    this.colors = [
+      ...limes,
+      ...greens,
+      ...grays,
+      ...yellows,
+      ...browns,
+      ...burlywoods
     ];
     this.hexes = [];
     this.ports = [];
@@ -37,42 +31,34 @@ class Board {
     for (let i = 3; i <= 11; i++) {
       this.numbers.push(i);
     }
-    this.numbers.forEach((number, index) => {
-      if (number === 7) {
-        this.numbers.splice(index, 1);
-      }
-    });
   };
   createHexes = () => {
     let grow = 1;
     let currentId = 0;
-    let count = this.boardRadius;
     const diagonal = this.boardRadius * 2 - 1;
+    let count = this.boardRadius
     for (let i = 1; i <= diagonal; i++) {
       if (i >= this.boardRadius) {
         grow = -1;
       }
       for (let j = 1; j <= count; j++) {
-        const colour = this.colours.splice(
-          Math.floor(Math.random() * this.colours.length),
+        const [color] = this.colors.splice(
+          Math.floor(Math.random() * this.colors.length),
           1
         );
-        if (colour[0] === "burlywood") {
+        if (color === "burlywood") {
           this.thief.x = ((i * 3) / 2) * hexRadius;
           this.thief.y =
             j * this.hexHeight + ((diagonal - count) / 2) * this.hexHeight;
           this.thief.isSet = true;
         }
         const number =
-          colour[0] !== "burlywood"
-            ? this.numbers.splice(
-                Math.floor(Math.random() * this.numbers.length),
-                1
-              )
+          color !== "burlywood"
+            ? spliceRandomItem(this.numbers)
             : null;
         this.hexes.push(
           new Hex(
-            colour,
+            color,
             currentId,
             number,
             [i, j],

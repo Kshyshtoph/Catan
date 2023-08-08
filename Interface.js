@@ -3,6 +3,14 @@ class Interface {
     this.player = player;
     this.skipper = new Skipper(players);
   }
+  isIntersecting(x1, x2, y1, y2, box, modifyier = 0) {
+    return (
+      x1 > x2 - box - modifyier &&
+      x1 < x2 + box + modifyier &&
+      y1 > y2 - box + modifyier &&
+      y1 < y2 + box - modifyier
+    )
+  }
   draw = () => {
     ctx.fillStyle = "burlywood";
     ctx.fillRect(450, 0, 150, 600);
@@ -79,28 +87,24 @@ class Interface {
     this.draw();
   };
   handleSettlementBuild = e => {
-    if (
-      this.player.meeples.findIndex(
-        meeple => meeple.active === true && meeple.type === "settlement"
-      ) !== -1
-    ) {
-      const activeMeeple = this.player.meeples[
-        this.player.meeples.findIndex(meeple => meeple.active === true)
-      ];
+    const index = this.player.meeples.findIndex(
+      meeple => meeple.active === true && meeple.type === "settlement"
+    )
+    if (index !== -1) {
+      console.log("building settlement!")
+      const activeMeeple = this.player.meeples[index];
       let settlementBuilt = false;
       board.hexes.forEach(hex => {
         hex.buildingMarkers.forEach(marker => {
-          const { x, y, width, height } = marker;
+          const { x, y, size } = marker;
+          const boxSize = size / 2
           if (
-            e.offsetX > x - width / 2 &&
-            e.offsetX < x + width / 2 &&
-            e.offsetY > y - height / 2 &&
-            e.offsetY < y + height / 2 &&
+            this.isIntersecting(e.offsetX, x, e.offsetY, y, boxSize) &&
             !marker.taken &&
             (this.player.freeSettlement || this.player.canAffordSettlement())
           ) {
-            activeMeeple.x = x - activeMeeple.height / 2;
-            activeMeeple.y = y - activeMeeple.width / 2;
+            activeMeeple.x = x - activeMeeple.size / 2;
+            activeMeeple.y = y - activeMeeple.size / 2;
             activeMeeple.inPlay = true;
             activeMeeple.active = false;
             marker.taken = true;
@@ -115,32 +119,14 @@ class Interface {
             this.player.freeSettlement = false;
             board.hexes.forEach(hex => {
               hex.buildingMarkers.forEach(m => {
-                if (
-                  m.x > marker.x - hexRadius - 5 &&
-                  m.x < marker.x + hexRadius + 5 &&
-                  m.y > marker.y - hexRadius - 5 &&
-                  m.y < marker.y + hexRadius + 5
-                ) {
+                if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius, 5))
                   m.taken = true;
-                }
-                if (
-                  m.x > marker.x - 1 &&
-                  m.x < marker.x + 1 &&
-                  m.y > marker.y - 1 &&
-                  m.y < marker.y + 1
-                ) {
+                if (this.isIntersecting(m.x, marker.x, m.y, marker.y, 1))
                   m.ocupation = this.player;
-                }
               });
               hex.roadMarkers.forEach(m => {
-                if (
-                  m.x > marker.x - hexRadius &&
-                  m.x < marker.x + hexRadius &&
-                  m.y > marker.y - hexRadius &&
-                  m.y < marker.y + hexRadius
-                ) {
+                if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius))
                   m.canBuild.push(this.player);
-                }
               });
             });
           }
@@ -149,41 +135,37 @@ class Interface {
       if (settlementBuilt) this.player.victoryPoints++;
       board.ports.forEach(port => {
         if (
-          activeMeeple.x + activeMeeple.width / 2 <= port.x + port.radius &&
-          activeMeeple.x + activeMeeple.width / 2 >= port.x - port.radius &&
-          activeMeeple.y + activeMeeple.height / 2 >= port.y - port.radius &&
-          activeMeeple.y + activeMeeple.height / 2 <= port.y + port.radius
-        ) {
-          this.player.ports.push(port);
-        }
+          this.isIntersecting(
+            activeMeeple.x + activeMeeple.size / 2,
+            port.x, activeMeeple.y + activeMeeple.size / 2,
+            port.y,
+            port.radius)
+        ) this.player.ports.push(port);
       });
     }
   };
   handleRoadBuild = e => {
     let roadBuilt = false;
+    const index = this.player.meeples.findIndex(
+      meeple => meeple.active === true && meeple.type === "road"
+    )
     if (
-      this.player.meeples.findIndex(
-        meeple => meeple.active === true && meeple.type === "road"
-      ) !== -1 &&
+      index !== -1 &&
       (this.player.freeRoads || this.player.canAffordRoad())
     ) {
-      const activeMeeple = this.player.meeples[
-        this.player.meeples.findIndex(meeple => meeple.active === true)
-      ];
+      const activeMeeple = this.player.meeples[index];
 
       board.hexes.forEach(hex => {
         hex.roadMarkers.forEach(marker => {
-          const { x, y, width, height } = marker;
+          const { x, y, size } = marker;
           if (
-            e.offsetX > x - width / 2 &&
-            e.offsetX < x + width / 2 &&
-            e.offsetY > y - height / 2 &&
-            e.offsetY < y + height / 2 &&
+            this.isIntersecting(e.offsetX, x, e.offsetY, y, size / 2) &&
             !marker.taken &&
             marker.canBuild.includes(this.player)
           ) {
-            activeMeeple.x = x - activeMeeple.width / 2;
-            activeMeeple.y = y - activeMeeple.height / 2;
+            console.log(marker, activeMeeple)
+            activeMeeple.x = x - activeMeeple.size / 2;
+            activeMeeple.y = y - activeMeeple.size / 2;
             activeMeeple.inPlay = true;
             activeMeeple.active = false;
             activeMeeple.direction = marker.direction;
@@ -194,23 +176,16 @@ class Interface {
             board.hexes.forEach(hex => {
               hex.roadMarkers.forEach(m => {
                 if (
-                  m.x > marker.x - hexRadius - 5 &&
-                  m.x < marker.x + hexRadius + 5 &&
-                  m.y > marker.y - hexRadius - 5 &&
-                  m.y < marker.y + hexRadius + 5
+                  this.isIntersecting(m.x, marker.x, hexRadius, 5)
                 ) {
                   m.active = true;
                   m.canBuild.push(this.player);
                   activeMeeple.neighbours.push(m);
                 }
               });
+
               hex.buildingMarkers.forEach(m => {
-                if (
-                  m.x > marker.x - hexRadius &&
-                  m.x < marker.x + hexRadius &&
-                  m.y > marker.y - hexRadius &&
-                  m.y < marker.y + hexRadius
-                )
+                if (this.isIntersecting(m.x, marker.x, hexRadius))
                   m.canBuild.push(this.player);
               });
             });
@@ -246,9 +221,9 @@ class Interface {
         if (meeple.type === "settlement" && meeple.inPlay) {
           if (
             e.offsetX > meeple.x &&
-            e.offsetX < meeple.x + meeple.width &&
+            e.offsetX < meeple.x + meeple.size &&
             e.offsetY > meeple.y &&
-            e.offsetY < meeple.y + meeple.height
+            e.offsetY < meeple.y + meeple.size
           ) {
             activeMeeple.x = meeple.x;
             activeMeeple.y = meeple.y;
@@ -278,13 +253,13 @@ class Interface {
   handleMeepleSelect = e => {
     this.player.meeples.forEach(meeple => {
       if (!meeple.inPlay) {
-        const { x, y, width, height } = meeple;
+        const { x, y, size } = meeple;
         meeple.active = false;
         if (
           e.offsetX > x &&
-          e.offsetX < x + width &&
+          e.offsetX < x + size &&
           e.offsetY > y &&
-          e.offsetY < y + height
+          e.offsetY < y + size
         ) {
           meeple.active = true;
         }
@@ -294,7 +269,7 @@ class Interface {
   handlePopupShow = e => {
     if (
       e.offsetX > market.x &&
-      e.offsetX < market.x + market.width &&
+      e.offsetX < market.x + market.size &&
       e.offsetY > market.y &&
       e.offsetY < market.y + market.height
     ) {
@@ -306,7 +281,7 @@ class Interface {
     }
     if (
       e.offsetX > progress.x &&
-      e.offsetX < progress.x + progress.width &&
+      e.offsetX < progress.x + progress.size &&
       e.offsetY > progress.y &&
       e.offsetY < progress.y + progress.height
     ) {

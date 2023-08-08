@@ -6,7 +6,7 @@ class Player {
     this.freeRoads = 1;
     this.pushMeeples();
     this.pushRoads();
-    this.resources = [0, 0, 0, 0, 0];
+    this.resources = [10, 10, 10, 10, 10];
     this.progressCards = [];
     this.victoryPoints = 0;
     this.freeResources = 0;

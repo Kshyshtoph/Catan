@@ -88,38 +88,27 @@ class Board {
     });
   };
   createPorts = () => {
+    // the keys refer to hex numbers, array contains two corners 
+    // of hex in which port should appear and conditionally port color
+    const ports = {
+      0: [2, 3],
+      1: [3, 4, "green"],
+      2: [4, 5],
+      3: [1, 2, "lime"],
+      7: [0, 1],
+      11: [3, 4, "brown"],
+      15: [4, 5],
+      16: [1, 2, "yellow"],
+      17: [0, 1],
+      18: [5, 0, "gray"]
+    }
     this.hexes.forEach(hex => {
-      if (hex.id === 0) {
-        const [x, y] = getCenter(hex.corners, 2, 3)
-        this.ports.push(new Port(x, y));
-      } else if (hex.id === 1) {
-        const [x, y] = getCenter(hex.corners, 3, 4)
-        this.ports.push(new Port(x, y, "green"));
-      } else if (hex.id === 2) {
-        const [x, y] = getCenter(hex.corners, 4, 5)
-        this.ports.push(new Port(x, y));
-      } else if (hex.id === 11) {
-        const [x, y] = getCenter(hex.corners, 3, 4)
-        this.ports.push(new Port(x, y, "brown"));
-      } else if (hex.id === 15) {
-        const [x, y] = getCenter(hex.corners, 4, 5)
-        this.ports.push(new Port(x, y));
-      } else if (hex.id === 18) {
-        const [x, y] = getCenter(hex.corners, 5, 0)
-        this.ports.push(new Port(x, y, "gray"));
-      } else if (hex.id === 16) {
-        const [x, y] = getCenter(hex.corners, 1, 2)
-        this.ports.push(new Port(x, y, "yellow"));
-      } else if (hex.id === 17) {
-        const [x, y] = getCenter(hex.corners, 0, 1)
-        this.ports.push(new Port(x, y));
-      } else if (hex.id === 7) {
-        const [x, y] = getCenter(hex.corners, 0, 1)
-        this.ports.push(new Port(x, y));
-      } else if (hex.id === 3) {
-        const [x, y] = getCenter(hex.corners, 1, 2)
-        this.ports.push(new Port(x, y, "lime"));
+      if (ports[hex.id] != undefined) {
+        const [cornerIndex1, cornerIndex2, color] = ports[hex.id]
+        const [x, y] = getCenter(hex.corners, cornerIndex1, cornerIndex2)
+        this.ports.push(new Port(x, y, color));
       }
-    });
+    }
+    );
   };
 }

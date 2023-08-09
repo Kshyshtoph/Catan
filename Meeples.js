@@ -1,15 +1,28 @@
-class Settlement {
+class Meeple {
   constructor(player, id) {
     this.colour = player.colour;
     this.inPlay = false;
     this.id = id;
+    this.active = false;
+  }
+  moveToMarker(marker) {
+    this.x = marker.x - this.size / 2;
+    this.y = marker.y - this.size / 2;
+    this.inPlay = true;
+    this.active = false;
+    marker.taken = true;
+  }
+}
+
+class Settlement extends Meeple {
+  constructor(player, id) {
+    super(player, id)
     this.type = "settlement";
     this.size = 20;
     this.x = 500;
     this.y = this.id * 40 + 25;
     this.initialX = 500;
     this.initialY = this.y;
-    this.active = false;
   }
   draw = () => {
     if (this.active && !this.inPlay) {
@@ -19,6 +32,11 @@ class Settlement {
     ctx.fillStyle = this.colour;
     ctx.fillRect(this.x, this.y, this.size, this.size);
   };
+  backToInitial = () => {
+    meeple.x = meeple.initialX;
+    meeple.y = meeple.initialY;
+    meeple.inPlay = false;
+  }
 }
 class City extends Settlement {
   constructor(player, id) {
@@ -27,7 +45,7 @@ class City extends Settlement {
     this.type = "city";
     this.y = this.id * 40 + 25;
   }
-  draw = () => {
+  draw() {
     ctx.beginPath();
     if (this.active && !this.inPlay) {
       ctx.fillStyle = "black";
@@ -52,21 +70,27 @@ class City extends Settlement {
     );
     ctx.fill();
   };
+  replaceSettlement(meeple) {
+    console.log('replacing settlement')
+    this.x = meeple.x;
+    this.y = meeple.y;
+    this.inPlay = true;
+    this.active = false;
+    cityBuilt = true;
+    meeple.backToInitial()
+  }
 }
-class Road {
+class Road extends Meeple {
   constructor(player, id) {
-    this.colour = player.colour;
+    super(player, id)
     this.neighbours = [];
-    this.inPlay = false;
     this.type = "road";
-    this.id = id;
     this.size = 25;
     this.x = 475 + (this.id % 3) * 30;
     this.y = Math.floor(this.id / 3) * 40 + 250;
-    this.active = false;
     this.direction = 45;
   }
-  draw = () => {
+  draw() {
     if (this.active) {
       ctx.fillStyle = "black";
       ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
@@ -87,4 +111,8 @@ class Road {
     ctx.rotate((-this.direction * Math.PI) / 180);
     ctx.translate(-this.x - this.size / 2, -this.y - this.size / 2);
   };
+  moveToMarker(marker) {
+    super.moveToMarker(marker)
+    this.direction = marker.direction;
+  }
 }

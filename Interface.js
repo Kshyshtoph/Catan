@@ -11,6 +11,9 @@ class Interface {
       y1 < y2 + box - modifyier
     )
   }
+  offset({ x, y, size }) {
+    return ({ x2: x + size / 2, y2: y + size / 2, size: size / 2 })
+  }
   draw = () => {
     ctx.fillStyle = "burlywood";
     ctx.fillRect(450, 0, 150, 600);
@@ -91,7 +94,6 @@ class Interface {
       meeple => meeple.active === true && meeple.type === "settlement"
     )
     if (index !== -1) {
-      console.log("building settlement!")
       const activeMeeple = this.player.meeples[index];
       let settlementBuilt = false;
       board.hexes.forEach(hex => {
@@ -103,11 +105,7 @@ class Interface {
             !marker.taken &&
             (this.player.freeSettlement || this.player.canAffordSettlement())
           ) {
-            activeMeeple.x = x - activeMeeple.size / 2;
-            activeMeeple.y = y - activeMeeple.size / 2;
-            activeMeeple.inPlay = true;
-            activeMeeple.active = false;
-            marker.taken = true;
+            activeMeeple.moveToMarker(marker)
             settlementBuilt = true;
             marker.ocupation = this.player;
             if (!this.player.freeSettlement) {
@@ -163,15 +161,9 @@ class Interface {
             !marker.taken &&
             marker.canBuild.includes(this.player)
           ) {
-            console.log(marker, activeMeeple)
-            activeMeeple.x = x - activeMeeple.size / 2;
-            activeMeeple.y = y - activeMeeple.size / 2;
-            activeMeeple.inPlay = true;
-            activeMeeple.active = false;
-            activeMeeple.direction = marker.direction;
-            marker.taken = true;
-            marker.ocupation = this.player;
+            activeMeeple.moveToMarker(marker)
             roadBuilt = true;
+            marker.ocupation = this.player;
             marker.ocupation = currentPlayer;
             board.hexes.forEach(hex => {
               hex.roadMarkers.forEach(m => {
@@ -219,20 +211,11 @@ class Interface {
 
       this.player.meeples.forEach(meeple => {
         if (meeple.type === "settlement" && meeple.inPlay) {
-          if (
-            e.offsetX > meeple.x &&
-            e.offsetX < meeple.x + meeple.size &&
-            e.offsetY > meeple.y &&
-            e.offsetY < meeple.y + meeple.size
-          ) {
-            activeMeeple.x = meeple.x;
-            activeMeeple.y = meeple.y;
-            meeple.x = meeple.initialX;
-            cityBuilt = true;
-            meeple.y = meeple.initialY;
-            meeple.inPlay = false;
-            activeMeeple.active = false;
-            activeMeeple.inPlay = true;
+          const { offsetX: x1, offsetY: y1 } = e
+          const { y, x, size } = meeple
+          const x2 = x + size / 2
+          const y2 = y + size / 2
+          if (this.isIntersecting(x1, x2, y1, y2, size / 2)) {
           }
           board.hexes.forEach(hex => {
             hex.buildingMarkers.forEach(marker => {
@@ -253,47 +236,37 @@ class Interface {
   handleMeepleSelect = e => {
     this.player.meeples.forEach(meeple => {
       if (!meeple.inPlay) {
-        const { x, y, size } = meeple;
+        const { offsetX: x1, offsetY: y1 } = e
+        const { x2, y2, size } = this.offset(meeple)
         meeple.active = false;
-        if (
-          e.offsetX > x &&
-          e.offsetX < x + size &&
-          e.offsetY > y &&
-          e.offsetY < y + size
-        ) {
+        if (this.isIntersecting(x1, x2, y1, y2, size / 2)) {
           meeple.active = true;
         }
       }
     });
   };
-  handlePopupShow = e => {
-    if (
-      e.offsetX > market.x &&
-      e.offsetX < market.x + market.size &&
-      e.offsetY > market.y &&
-      e.offsetY < market.y + market.height
-    ) {
+  handlePopupShow(e) {
+    const { offsetX: x1, offsetY: y1 } = e
+    const { x2, y2, size: marketSize } = this.offset(market)
+    if (this.isIntersecting(x1, x2, y1, y2, marketSize)) {
       market.activePlayerIndex = players.findIndex(
         player => player === currentPlayer
       );
       market.active = true;
       market.isOfferSet = false;
     }
-    if (
-      e.offsetX > progress.x &&
-      e.offsetX < progress.x + progress.size &&
-      e.offsetY > progress.y &&
-      e.offsetY < progress.y + progress.height
+    const { x2: x3, y2: y3, size: progressSize } = this.offset(progress)
+    if (this.isIntersecting(x1, x2, x3, y3, progressSize)
     ) {
       progress.active = true;
     }
   };
   handleSkipping = e => {
+    const { offsetX: x1, offsetY: y1 } = e
+    const { x, y, size } = this.skipper
+    const x2 = x + size / 2, y2 = y + size / 2
     if (
-      e.offsetX > this.skipper.x &&
-      e.offsetX < this.skipper.x + this.skipper.width &&
-      e.offsetY > this.skipper.y &&
-      e.offsetY < this.skipper.y + this.skipper.height
+      this.isIntersecting(x1, x2, y1, y2, size / 2)
     ) {
       this.skipper.skip();
       this.player = players[this.skipper.activePlayerIndex];

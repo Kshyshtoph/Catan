@@ -4,8 +4,7 @@ class Skipper {
     this.activePlayerIndex = 0;
     this.x = 475;
     this.y = 475;
-    this.width = 100;
-    this.height = 60;
+    this.size = 100;
     this.dice = new Dice();
   }
   trade = () => {
@@ -42,6 +41,6 @@ class Skipper {
   };
   draw = () => {
     ctx.fillStyle = "green";
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.fillRect(this.x, this.y, this.size, this.size);
   };
 }

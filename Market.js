@@ -3,8 +3,7 @@ class Market {
     this.x = 315;
     this.y = 500;
     this.icon = new Image();
-    this.width = 125;
-    this.height = 75;
+    this.size = 75;
     this.active = false;
     this.icon.onload = this.draw;
     this.icon.src = "./img/MarketIcon.png";
@@ -25,7 +24,7 @@ class Market {
   }
   draw = () => {
     ctx.drawImage(this.icon, this.x, this.y);
-    ctx.strokeRect(this.x, this.y, this.width, this.height);
+    ctx.strokeRect(this.x, this.y, this.size, this.size);
   };
   drawPopup = () => {
     ctx.fillStyle = "burlywood";

@@ -2,25 +2,23 @@ class Market {
   constructor() {
     this.x = 315;
     this.y = 500;
-    this.icon = new Image();
     this.size = 75;
     this.active = false;
-    this.icon.onload = this.draw;
-    this.icon.src = "./img/MarketIcon.png";
-    this.closeBtn = new Image();
-    this.closeBtn.src = "./img/closeBtn.png";
-    this.DealWithOtherPlayerBtn = new Image();
-    this.DealWithOtherPlayerBtn.src = "./img/DealWithOtherPlayer.png";
-    this.DealWithBankBtn = new Image();
-    this.DealWithBankBtn.src = "./img/DealWithBank.png";
+    this.icon = assignImage("./img/MarketIcon.png")
+    this.closeBtn = assignImage("./img/closeBtn.png");
+    this.DealWithOtherPlayerBtn = assignImage("./img/DealWithOtherPlayer.png");
+    this.DealWithBankBtn = assignImage("./img/DealWithBank.png")
+    this.acceptBtn = assignImage("./img/accept.png");
     this.dealWith = "otherPlayer";
-    this.acceptBtn = new Image();
-    this.acceptBtn.src = "./img/accept.png";
+    this.icon.onload = this.draw;
     this.offer = [0, 0, 0, 0, 0];
     this.demands = [0, 0, 0, 0, 0];
     this.isOfferSet = false;
     this.activePlayerIndex = 0;
     this.deal = false;
+  }
+  drawOffer() {
+
   }
   draw = () => {
     ctx.drawImage(this.icon, this.x, this.y);
@@ -48,9 +46,9 @@ class Market {
     ctx.font = "25px Arial";
     ctx.fillStyle = "black";
     ctx.fillText("offer", 50, 200);
-    const colours = ["green", "lime", "brown", "gray", "yellow"];
-    colours.forEach((colour, i) => {
-      ctx.fillStyle = colour;
+    const colors = ["green", "lime", "brown", "gray", "yellow"];
+    colors.forEach((color, i) => {
+      ctx.fillStyle = color;
       ctx.fillRect(i * 60 + 115, 225, 50, 75);
       ctx.strokeRect(i * 60 + 115, 225, 50, 75);
       ctx.fillStyle = "black";
@@ -62,8 +60,8 @@ class Market {
     });
     ctx.fillStyle = "black";
     ctx.fillText("demands", 50, 350);
-    colours.forEach((colour, i) => {
-      ctx.fillStyle = colour;
+    colors.forEach((color, i) => {
+      ctx.fillStyle = color;
       ctx.fillRect(i * 60 + 115, 375, 50, 75);
       ctx.fillStyle = "black";
       ctx.strokeRect(i * 60 + 115, 375, 50, 75);
@@ -84,12 +82,7 @@ class Market {
     this.handleOffer(e);
     this.handleDenial(e);
 
-    if (
-      e.offsetX < 600 &&
-      e.offsetX > 550 &&
-      e.offsetY < 500 &&
-      e.offsetY > 450
-    )
+    if (this.checkClick(e, 600, 550, 500, 450))
       this.handleTrade();
   };
   checkCanTrade = () => {
@@ -100,6 +93,14 @@ class Market {
     }
     return true;
   };
+  checkClick(e, x1, x2, y1, y2) {
+    return (
+      e.offsetX > x1 &&
+      e.offsetX < x2 &&
+      e.offsetY > y1 &&
+      e.offsetY < y2
+    )
+  }
   drawTriangle(orientation, x, y) {
     ctx.beginPath();
     ctx.fillStyle = "gray";
@@ -111,68 +112,41 @@ class Market {
   }
   handlePopupClose = e => {
     if (
-      e.offsetX > 550 &&
-      e.offsetX < 600 &&
-      e.offsetY > 100 &&
-      e.offsetY < 150 &&
+      this.checkClick(e, 550, 600, 100, 150) &&
       !this.isOfferSet
     ) {
       this.closePopup();
     }
   };
+
   chooseMerchant = e => {
-    if (
-      e.offsetX > 275 &&
-      e.offsetX < 400 &&
-      e.offsetY > 100 &&
-      e.offsetY < 175
-    ) {
+    if (this.checkClick(e, 275, 400, 100, 175)) {
       this.dealWith = "bank";
     }
-    if (
-      e.offsetX > 125 &&
-      e.offsetX < 250 &&
-      e.offsetY > 100 &&
-      e.offsetY < 175
-    ) {
+    if (this.checkClick(e, 125, 250, 100, 175)) {
       this.dealWith = "otherPlayer";
     }
   };
   handleOffer = e => {
     this.demands.forEach((demand, i) => {
-      if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 350 &&
-        e.offsetY < 370
-      ) {
+      if (this.checkClick(e, i * 60 + 115, i * 60 + 155, 350, 370)) {
         this.demands[i]++;
       }
+
       if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 455 &&
-        e.offsetY < 475 &&
+        this.checkClick(e, i * 60 + 115, i * 60 + 155, 455, 475) &&
         this.demands[i] > 0
       ) {
         this.demands[i]--;
       }
     });
     this.offer.forEach((demand, i) => {
-      if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 200 &&
-        e.offsetY < 220 &&
+      if (this.checkClick(e, i * 60 + 115, i * 60 + 155, 200, 220) &&
         this.offer[i] < currentPlayer.resources[i]
       ) {
         this.offer[i]++;
       }
-      if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 305 &&
-        e.offsetY < 320 &&
+      if (this.checkClick(e, i * 60 + 115, i * 60 + 155, 305, 320) &&
         this.offer[i] > 0
       ) {
         this.offer[i]--;
@@ -180,13 +154,8 @@ class Market {
     });
   };
   handleDenial = e => {
-    if (
-      e.offsetX > 500 &&
-      e.offsetX < 550 &&
-      e.offsetY > 450 &&
-      e.offsetY < 500 &&
-      this.isOfferSet
-    ) {
+    if (this.checkClick(e, 500, 550, 450, 500) &&
+      this.isOfferSet) {
       this.activePlayerIndex++;
       if (this.activePlayerIndex == players.length) {
         this.activePlayerIndex = 0;

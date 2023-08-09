@@ -103,8 +103,8 @@ class Interface {
           (this.player.freeSettlement || this.player.canAffordSettlement())
         ) {
           activeMeeple.moveToMarker(marker)
-          settlementBuilt = true;
           marker.ocupation = this.player;
+          settlementBuilt = true;
           if (!this.player.freeSettlement) {
             this.player.resources[0] -= 1;
             this.player.resources[2] -= 1;
@@ -129,12 +129,9 @@ class Interface {
     });
     if (settlementBuilt) this.player.victoryPoints++;
     board.ports.forEach(port => {
+      const { x2: x1, y2: y1 } = offset(activeMeeple)
       if (
-        this.isIntersecting(
-          activeMeeple.x + activeMeeple.size / 2,
-          port.x, activeMeeple.y + activeMeeple.size / 2,
-          port.y,
-          port.radius)
+        this.isIntersecting(x1, port.x, y1, port.y, port.radius)
       ) this.player.ports.push(port);
     });
   };
@@ -153,9 +150,9 @@ class Interface {
           marker.canBuild.includes(this.player)
         ) {
           activeMeeple.moveToMarker(marker)
-          roadBuilt = true;
           marker.ocupation = this.player;
           marker.ocupation = currentPlayer;
+          roadBuilt = true;
           board.hexes.forEach(hex => {
             hex.roadMarkers.forEach(m => {
               if (

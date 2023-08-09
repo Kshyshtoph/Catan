@@ -16,6 +16,7 @@ class Market {
     this.isOfferSet = false;
     this.activePlayerIndex = 0;
     this.deal = false;
+    this.colors = ["green", "lime", "brown", "gray", "yellow"];
   }
   drawOffer() {
 
@@ -46,8 +47,7 @@ class Market {
     ctx.font = "25px Arial";
     ctx.fillStyle = "black";
     ctx.fillText("offer", 50, 200);
-    const colors = ["green", "lime", "brown", "gray", "yellow"];
-    colors.forEach((color, i) => {
+    this.colors.forEach((color, i) => {
       ctx.fillStyle = color;
       ctx.fillRect(i * 60 + 115, 225, 50, 75);
       ctx.strokeRect(i * 60 + 115, 225, 50, 75);
@@ -251,60 +251,15 @@ class Market {
         offeredSuplies === 2 * demandedSupplies &&
         suppliesIndexes.length === 1
       ) {
-        switch (suppliesIndexes[0]) {
-          case 0:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "green") !==
-              -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 1:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "lime") !== -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 2:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "brown") !==
-              -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 3:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "gray") !== -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 4:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "yellow") !==
-              -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
+        const color = colors[suppliesIndexes[0]]
+        if (
+          currentPlayer.ports.findIndex(port => port.type === color) !==
+          -1
+        ) {
+          currentPlayer.resources.forEach((resource, index) => {
+            currentPlayer.resources[index] += this.demands[index];
+            currentPlayer.resources[index] -= this.offer[index];
+          });
         }
       }
       this.closePopup();

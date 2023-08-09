@@ -33,9 +33,9 @@ class Settlement extends Meeple {
     ctx.fillRect(this.x, this.y, this.size, this.size);
   };
   backToInitial = () => {
-    meeple.x = meeple.initialX;
-    meeple.y = meeple.initialY;
-    meeple.inPlay = false;
+    this.x = this.initialX;
+    this.y = this.initialY;
+    this.inPlay = false;
   }
 }
 class City extends Settlement {
@@ -76,7 +76,6 @@ class City extends Settlement {
     this.y = meeple.y;
     this.inPlay = true;
     this.active = false;
-    cityBuilt = true;
     meeple.backToInitial()
   }
 }

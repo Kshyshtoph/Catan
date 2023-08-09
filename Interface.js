@@ -86,151 +86,135 @@ class Interface {
     } else {
       progress.handleInventionPopup(e);
     }
-
     this.draw();
   };
   handleSettlementBuild = e => {
-    const index = this.player.meeples.findIndex(
-      meeple => meeple.active === true && meeple.type === "settlement"
-    )
-    if (index !== -1) {
-      const activeMeeple = this.player.meeples[index];
-      let settlementBuilt = false;
-      board.hexes.forEach(hex => {
-        hex.buildingMarkers.forEach(marker => {
-          const { x, y, size } = marker;
-          const boxSize = size / 2
-          if (
-            this.isIntersecting(e.offsetX, x, e.offsetY, y, boxSize) &&
-            !marker.taken &&
-            (this.player.freeSettlement || this.player.canAffordSettlement())
-          ) {
-            activeMeeple.moveToMarker(marker)
-            settlementBuilt = true;
-            marker.ocupation = this.player;
-            if (!this.player.freeSettlement) {
-              this.player.resources[0] -= 1;
-              this.player.resources[2] -= 1;
-              this.player.resources[4] -= 1;
-              this.player.resources[1] -= 1;
-            }
-            this.player.freeSettlement = false;
-            board.hexes.forEach(hex => {
-              hex.buildingMarkers.forEach(m => {
-                if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius, 5))
-                  m.taken = true;
-                if (this.isIntersecting(m.x, marker.x, m.y, marker.y, 1))
-                  m.ocupation = this.player;
-              });
-              hex.roadMarkers.forEach(m => {
-                if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius))
-                  m.canBuild.push(this.player);
-              });
-            });
-          }
-        });
-      });
-      if (settlementBuilt) this.player.victoryPoints++;
-      board.ports.forEach(port => {
+    const index = this.player.meeples.findIndex(meeple => meeple.active === true && meeple.type === "settlement")
+    if (index === -1) return;
+    const activeMeeple = this.player.meeples[index];
+    let settlementBuilt = false;
+    board.hexes.forEach(hex => {
+      hex.buildingMarkers.forEach(marker => {
+        const { x, y, size } = marker;
+        const boxSize = size / 2
         if (
-          this.isIntersecting(
-            activeMeeple.x + activeMeeple.size / 2,
-            port.x, activeMeeple.y + activeMeeple.size / 2,
-            port.y,
-            port.radius)
-        ) this.player.ports.push(port);
-      });
-    }
-  };
-  handleRoadBuild = e => {
-    let roadBuilt = false;
-    const index = this.player.meeples.findIndex(
-      meeple => meeple.active === true && meeple.type === "road"
-    )
-    if (
-      index !== -1 &&
-      (this.player.freeRoads || this.player.canAffordRoad())
-    ) {
-      const activeMeeple = this.player.meeples[index];
-
-      board.hexes.forEach(hex => {
-        hex.roadMarkers.forEach(marker => {
-          const { x, y, size } = marker;
-          if (
-            this.isIntersecting(e.offsetX, x, e.offsetY, y, size / 2) &&
-            !marker.taken &&
-            marker.canBuild.includes(this.player)
-          ) {
-            activeMeeple.moveToMarker(marker)
-            roadBuilt = true;
-            marker.ocupation = this.player;
-            marker.ocupation = currentPlayer;
-            board.hexes.forEach(hex => {
-              hex.roadMarkers.forEach(m => {
-                if (
-                  this.isIntersecting(m.x, marker.x, hexRadius, 5)
-                ) {
-                  m.active = true;
-                  m.canBuild.push(this.player);
-                  activeMeeple.neighbours.push(m);
-                }
-              });
-
-              hex.buildingMarkers.forEach(m => {
-                if (this.isIntersecting(m.x, marker.x, hexRadius))
-                  m.canBuild.push(this.player);
-              });
-            });
+          this.isIntersecting(e.offsetX, x, e.offsetY, y, boxSize) &&
+          !marker.taken &&
+          (this.player.freeSettlement || this.player.canAffordSettlement())
+        ) {
+          activeMeeple.moveToMarker(marker)
+          settlementBuilt = true;
+          marker.ocupation = this.player;
+          if (!this.player.freeSettlement) {
+            this.player.resources[0] -= 1;
+            this.player.resources[2] -= 1;
+            this.player.resources[4] -= 1;
+            this.player.resources[1] -= 1;
           }
-        });
-      });
-      if (this.player.freeRoads === 0 && roadBuilt) {
-        this.player.resources[0] -= 1;
-        this.player.resources[2] -= 1;
-        this.player.findLongestRoad();
-      }
-      if (roadBuilt && this.player.freeRoads !== 0) {
-        this.player.freeRoads -= 1;
-        this.player.findLongestRoad();
-      }
-    }
-  };
-  handleCityBuild = e => {
-    let cityBuilt = false;
-    if (
-      this.player.meeples.findIndex(
-        meeple => meeple.active === true && meeple.type === "city"
-      ) !== -1 &&
-      this.player.canAffordCity()
-    ) {
-      const activeMeeple = this.player.meeples[
-        this.player.meeples.findIndex(
-          meeple => meeple.active === true && meeple.type === "city"
-        )
-      ];
-
-      this.player.meeples.forEach(meeple => {
-        if (meeple.type === "settlement" && meeple.inPlay) {
-          const { offsetX: x1, offsetY: y1 } = e
-          const { y, x, size } = meeple
-          const x2 = x + size / 2
-          const y2 = y + size / 2
-          if (this.isIntersecting(x1, x2, y1, y2, size / 2)) {
-          }
+          this.player.freeSettlement = false;
           board.hexes.forEach(hex => {
-            hex.buildingMarkers.forEach(marker => {
-              if (marker.x === activeMeeple.x && marker.y === activeMeeple.y) {
-                marker.city = true;
-              }
+            hex.buildingMarkers.forEach(m => {
+              if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius, 5))
+                m.taken = true;
+              if (this.isIntersecting(m.x, marker.x, m.y, marker.y, 1))
+                m.ocupation = this.player;
+            });
+            hex.roadMarkers.forEach(m => {
+              if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius))
+                m.canBuild.push(this.player);
             });
           });
         }
       });
-      if (cityBuilt) {
-        this.player.resources[3] -= 3;
-        this.player.resources[4] -= 2;
-        this.player.victoryPoints += 1;
+    });
+    if (settlementBuilt) this.player.victoryPoints++;
+    board.ports.forEach(port => {
+      if (
+        this.isIntersecting(
+          activeMeeple.x + activeMeeple.size / 2,
+          port.x, activeMeeple.y + activeMeeple.size / 2,
+          port.y,
+          port.radius)
+      ) this.player.ports.push(port);
+    });
+  };
+  handleRoadBuild = e => {
+    let roadBuilt = false;
+    const index = this.player.meeples.findIndex(meeple => meeple.active === true && meeple.type === "road")
+    if (index === -1 || !(this.player.freeRoads || this.player.canAffordRoad())) return;
+    const activeMeeple = this.player.meeples[index];
+
+    board.hexes.forEach(hex => {
+      hex.roadMarkers.forEach(marker => {
+        const { x, y, size } = marker;
+        if (
+          this.isIntersecting(e.offsetX, x, e.offsetY, y, size / 2) &&
+          !marker.taken &&
+          marker.canBuild.includes(this.player)
+        ) {
+          activeMeeple.moveToMarker(marker)
+          roadBuilt = true;
+          marker.ocupation = this.player;
+          marker.ocupation = currentPlayer;
+          board.hexes.forEach(hex => {
+            hex.roadMarkers.forEach(m => {
+              if (
+                this.isIntersecting(m.x, marker.x, hexRadius, 5)
+              ) {
+                m.active = true;
+                m.canBuild.push(this.player);
+                activeMeeple.neighbours.push(m);
+              }
+            });
+
+            hex.buildingMarkers.forEach(m => {
+              if (this.isIntersecting(m.x, marker.x, hexRadius))
+                m.canBuild.push(this.player);
+            });
+          });
+        }
+      });
+    });
+    if (this.player.freeRoads === 0 && roadBuilt) {
+      this.player.resources[0] -= 1;
+      this.player.resources[2] -= 1;
+      this.player.findLongestRoad();
+    }
+    if (roadBuilt && this.player.freeRoads !== 0) {
+      this.player.freeRoads -= 1;
+      this.player.findLongestRoad();
+    }
+  };
+  handleCityBuild = e => {
+    let cityBuilt = false;
+    const index = this.player.meeples.findIndex(
+      meeple => meeple.active === true && meeple.type === "city"
+    )
+    if (index === -1 || !this.player.canAffordCity()) return;
+    console.log('building city')
+    const activeMeeple = this.player.meeples[index];
+
+    this.player.meeples.forEach(meeple => {
+      if (meeple.type === "settlement" && meeple.inPlay) {
+        const { offsetX: x1, offsetY: y1 } = e
+        const { x2, y2, size: size } = this.offset(meeple)
+        if (this.isIntersecting(x1, x2, y1, y2, size)) {
+          activeMeeple.replaceSettlement(meeple);
+          cityBuilt = true;
+        }
+        board.hexes.forEach(hex => {
+          hex.buildingMarkers.forEach(marker => {
+            if (marker.x === activeMeeple.x && marker.y === activeMeeple.y) {
+              marker.city = true;
+            }
+          });
+        });
       }
+    });
+    if (cityBuilt) {
+      this.player.resources[3] -= 3;
+      this.player.resources[4] -= 2;
+      this.player.victoryPoints += 1;
     }
   };
   handleMeepleSelect = e => {
@@ -239,7 +223,7 @@ class Interface {
         const { offsetX: x1, offsetY: y1 } = e
         const { x2, y2, size } = this.offset(meeple)
         meeple.active = false;
-        if (this.isIntersecting(x1, x2, y1, y2, size / 2)) {
+        if (this.isIntersecting(x1, x2, y1, y2, size)) {
           meeple.active = true;
         }
       }
@@ -263,10 +247,9 @@ class Interface {
   };
   handleSkipping = e => {
     const { offsetX: x1, offsetY: y1 } = e
-    const { x, y, size } = this.skipper
-    const x2 = x + size / 2, y2 = y + size / 2
+    const { x2, y2, size } = this.offset(this.skipper)
     if (
-      this.isIntersecting(x1, x2, y1, y2, size / 2)
+      this.isIntersecting(x1, x2, y1, y2, size)
     ) {
       this.skipper.skip();
       this.player = players[this.skipper.activePlayerIndex];

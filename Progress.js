@@ -74,23 +74,16 @@ class Progress {
     this.handlePopupClose(e);
   };
   handlePopupClose = e => {
-    if (
-      e.offsetX > 300 + this.popupWidth / 2 - 50 &&
-      e.offsetX < this.popupWidth / 2 + 300 &&
-      e.offsetY > 300 - this.popupHeight / 2 &&
-      e.offsetY < 350 - this.popupHeight / 2
-    ) {
+    const { offsetX: x, offsetY: y } = e
+    if (checkCollission(x, 300 + this.popupWidth / 2 - 50, this.popupWidth / 2 + 300, y, 300 - this.popupHeight / 2, 350 - this.popupHeight / 2)) {
       this.active = false;
     }
   };
-  handleCardPlay = (e, x, y, card, i) => {
+  handleCardPlay = (e, x1, y1, card, i) => {
     const cardWidth = 50;
     const cardHeight = 75;
-    if (
-      e.offsetX > x &&
-      e.offsetX < x + cardWidth &&
-      e.offsetY > y &&
-      e.offsetY < y + cardHeight
+    const { offsetX: x, offsetY: y } = e
+    if (checkCollission(x, x1, x1 + cardWidth, y, y1, y1 + cardHeight)
     ) {
       switch (card.type) {
         case 1:

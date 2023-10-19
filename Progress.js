@@ -58,11 +58,9 @@ class Progress {
       const y = 300 - this.popupHeight / 2 + (i <= 3 ? 25 : 150);
       this.handleCardPlay(e, x, y, currentPlayer.progressCards[i], i);
     }
+    const { offsetX: x, offsetY: y } = e
     if (
-      e.offsetX > 175 + this.popupWidth / 2 &&
-      e.offsetX < 225 + this.popupWidth / 2 &&
-      e.offsetY > 266.5 &&
-      e.offsetY < 266.5 + 75 &&
+      checkCollission(x, 175 + this.popupWidth / 2, 225 + this.popupWidth / 2, y, 266.5, 341.5) &&
       currentPlayer.canAffordProgressCard()
     ) {
       currentPlayer.progressCards.push({
@@ -159,14 +157,10 @@ class Progress {
     });
   };
   handleMonopolyPopup = e => {
+    const { offsetX: x, offsetY: y } = e
     for (let i = 0; i < 5; i++) {
       let numberOfResources = 0;
-      if (
-        e.offsetX > 125 + i * 75 &&
-        e.offsetX < 175 + i * 75 &&
-        e.offsetY > 225 &&
-        e.offsetY < 300
-      ) {
+      if (checkCollission(x, 125 + i * 75, 175 + i * 75, y, 225, 300)) {
         players.forEach(player => {
           numberOfResources += player.resources[i];
           player.resources[i] = 0;
@@ -177,14 +171,11 @@ class Progress {
     }
   };
   handleInventionPopup = e => {
+    const { offsetX: x, offsetY: y } = e
+
     if (currentPlayer.freeResources > 0) {
       for (let i = 0; i < 5; i++) {
-        if (
-          e.offsetX > 125 + i * 75 &&
-          e.offsetX < 175 + i * 75 &&
-          e.offsetY > 225 &&
-          e.offsetY < 300
-        ) {
+        if (checkCollission(x, 125 + i * 75, 175 + i * 75, y, 225, 300)) {
           currentPlayer.resources[i] += 1;
           currentPlayer.freeResources--;
           if (currentPlayer.freeResources === 0) {

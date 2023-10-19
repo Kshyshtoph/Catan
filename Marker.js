@@ -39,6 +39,16 @@ class Marker {
     }
   };
 }
+
+class BuildingMarker extends Marker {
+  pay(resource) {
+    let payoff = this.ocupation ? 1 : 0
+    if (!payoff) return;
+    if (marker.city) payoff++
+    this.ocupation.resources[resource] += payoff
+  }
+}
+
 class RoadMarker extends Marker {
   constructor(x, y, direction) {
     super(x, y);

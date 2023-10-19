@@ -131,7 +131,7 @@ class Interface {
     });
     if (settlementBuilt) this.player.victoryPoints++;
     board.ports.forEach(port => {
-      const { x2: x1, y2: y1 } = offset(activeMeeple)
+      const { x2: x1, y2: y1 } = this.offset(activeMeeple)
       if (
         this.isIntersecting(x1, port.x, y1, port.y, port.radius)
       ) this.player.ports.push(port);
@@ -279,7 +279,7 @@ class Interface {
           board.thief.stealFrom.push(marker.ocupation);
         }
       });
-      if (board.thief.stealFrom !== []) board.thief.active = true;
+      if (board.thief.stealFrom.length) board.thief.active = true;
     }
   };
 }

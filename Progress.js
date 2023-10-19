@@ -98,78 +98,48 @@ class Progress {
         case 1:
           if (card.age < currentRound) {
             board.thief.isSet = false;
-            currentPlayer.progressCards.splice(i, 1);
             currentPlayer.knightsPlayed++;
           }
           break;
         case 2:
           currentPlayer.victoryPoints++;
-          currentPlayer.progressCards.splice(i, 1);
           break;
         case 3:
           if (card.age < currentRound) {
             this.monopolyPopupActive = true;
-            currentPlayer.progressCards.splice(i, 1);
           }
           break;
         case 4:
           if (card.age < currentRound) {
             currentPlayer.freeRoads = 2;
-            currentPlayer.progressCards.splice(i, 1);
           }
           break;
         case 5:
           if (card.age < currentRound) {
             currentPlayer.freeResources = 2;
-            currentPlayer.progressCards.splice(i, 1);
             this.inventionPopupActive = true;
           }
           break;
       }
+      currentPlayer.progressCards.splice(i, 1);
       this.active = false;
     }
   };
+  drawCard = (image) => {
+    ctx.drawImage(
+      image,
+      325 - this.popupWidth / 2 + (i % 4) * 100,
+      300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
+    );
+  }
   handleCardDraw = () => {
     for (let i = 0; i < currentPlayer.progressCards.length; i++) {
-      switch (currentPlayer.progressCards[i].type) {
-        case 1:
-          ctx.drawImage(
-            this.knight,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 2:
-          ctx.drawImage(
-            this.victoryPoint,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 3:
-          ctx.drawImage(
-            this.monopoly,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 4:
-          ctx.drawImage(
-            this.roadBuild,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 5:
-          ctx.drawImage(
-            this.invention,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-      }
+      const cardType = currentPlayer.progressCards[i].type - 1
+      const cards = [this.knight, this.victoryPoint, this.monopoly, this.roadBuild, this.invention]
+      this.drawCard(cards[cardType])
     }
-  };
+  }
+
   generateCard = () => {
     const card = Math.random();
     if (card < 0.5) return 1;

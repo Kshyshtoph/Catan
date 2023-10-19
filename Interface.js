@@ -4,11 +4,13 @@ class Interface {
     this.skipper = new Skipper(players);
   }
   isIntersecting(x1, x2, y1, y2, box, modifyier = 0) {
-    return (
-      x1 > x2 - box - modifyier &&
-      x1 < x2 + box + modifyier &&
-      y1 > y2 - box + modifyier &&
-      y1 < y2 + box - modifyier
+    return checkCollission(
+      x1,
+      x2 - box - modifyier,
+      x2 + box + modifyier,
+      y1,
+      y2 - box + modifyier,
+      y2 + box - modifyier
     )
   }
   offset({ x, y, size }) {

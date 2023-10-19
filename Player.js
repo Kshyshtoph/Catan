@@ -15,6 +15,12 @@ class Player {
     this.crown.src = "./img/crown.png";
     this.ports = [];
   }
+  trade = (incomes, expenses) => {
+    this.resources.forEach((r, i) => {
+      r += incomes[i]
+      r -= expenses[i]
+    })
+  }
   pushRoads = () => {
     for (let i = 0; i < 15; i++) {
       this.meeples.push(new Road(this, i));
@@ -55,8 +61,8 @@ class Player {
   canAffordSettlement = () => {
     if (
       this.resources[0] >= 1 &&
-      this.resources[2] >= 1 &&
       this.resources[1] >= 1 &&
+      this.resources[2] >= 1 &&
       this.resources[4] >= 1
     )
       return true;

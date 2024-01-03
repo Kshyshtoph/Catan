@@ -1,6 +1,6 @@
 class Hex {
-  constructor(colour, id, number, location, y, radius) {
-    this.colour = colour[0];
+  constructor(color, id, number, location, y, radius) {
+    this.color = color;
     this.id = id;
     this.number = number ? number[0] : "";
     this.location = location;
@@ -19,67 +19,49 @@ class Hex {
       ]);
     }
     this.buildingMarkers = this.corners.map(
-      corner => new Marker(corner[0], corner[1])
+      corner => new BuildingMarker(corner[0], corner[1])
     );
     this.roadMarkers = [];
-    this.roadMarkers.push(
-      new RoadMarker(
-        (this.corners[0][0] + this.corners[this.corners.length - 1][0]) / 2,
-        (this.corners[0][1] + this.corners[this.corners.length - 1][1]) / 2,
-        this.switchDirection(
-          this.corners[0][0],
-          this.corners[this.corners.length - 1][0],
-          this.corners[0][1],
-          this.corners[this.corners.length - 1][1]
-        )
-      )
-    );
-    for (let i = 1; i < this.corners.length; i++) {
+    for (let i = 0; i < this.corners.length - 1; i++) {
+      const thisCorner = this.corners[i]
+      const [thisX, thisY] = thisCorner
+      const nextCorner = this.corners[i + 1]
+      const [nextX, nextY] = nextCorner
       this.roadMarkers.push(
         new RoadMarker(
-          (this.corners[i - 1][0] + this.corners[i][0]) / 2,
-          (this.corners[i - 1][1] + this.corners[i][1]) / 2,
+          (nextX + thisX) / 2,
+          (thisY + nextY) / 2,
           this.switchDirection(
-            this.corners[i - 1][0],
-            this.corners[i][0],
-            this.corners[i - 1][1],
-            this.corners[i][1]
+            nextCorner[0],
+            thisCorner[0],
+            nextCorner[1],
+            thisCorner[1]
           )
         )
       );
     }
   }
   switchDirection = (x1, x2, y1, y2) => {
-    if (x1 > x2) {
-      if (y1 > y2) {
-        return 60;
-      } else if (y1 < y2) {
-        return 300;
-      } else {
-        return 180;
-      }
+    if (x1 <= x2) {
+      if (y1 !== y2) return 60;
+      return 180;
     } else {
-      if (y1 > y2) {
-        return 120;
-      } else if (y1 < y2) {
-        return 240;
-      } else {
-        return 0;
-      }
+      if (y1 !== y2) return 120;
     }
+    return 0;
   };
   draw = () => {
     const numberOfEdges = 6;
-    ctx.fillStyle = this.colour;
+    ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.moveTo(this.x + this.radius, this.y);
     ctx.font = "30px Arial";
     for (let i = 0; i < numberOfEdges; i++) {
       ctx.lineTo(
         this.x +
-          Math.cos(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius,
+        Math.cos(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius,
         this.y -
-          Math.sin(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius
+        Math.sin(((360 / numberOfEdges) * i * Math.PI) / 180) * this.radius
       );
     }
     ctx.closePath();
@@ -103,58 +85,10 @@ class Hex {
       diceResult === this.number &&
       !(this.x === board.thief.x && this.y === board.thief.y)
     ) {
-      switch (this.colour) {
-        case "green":
-          this.buildingMarkers.forEach(marker => {
-            if (marker.ocupation) {
-              marker.ocupation.resources[0] += 1;
-            }
-            if (marker.city) {
-              marker.ocupation.resources[0] += 1;
-            }
-          });
-          break;
-        case "lime":
-          this.buildingMarkers.forEach(marker => {
-            if (marker.ocupation) {
-              marker.ocupation.resources[1] += 1;
-            }
-            if (marker.city) {
-              marker.ocupation.resources[0] += 1;
-            }
-          });
-          break;
-        case "brown":
-          this.buildingMarkers.forEach(marker => {
-            if (marker.ocupation) {
-              marker.ocupation.resources[2] += 1;
-            }
-            if (marker.city) {
-              marker.ocupation.resources[0] += 1;
-            }
-          });
-          break;
-        case "gray":
-          this.buildingMarkers.forEach(marker => {
-            if (marker.ocupation) {
-              marker.ocupation.resources[3] += 1;
-            }
-            if (marker.city) {
-              marker.ocupation.resources[0] += 1;
-            }
-          });
-          break;
-        case "yellow":
-          this.buildingMarkers.forEach(marker => {
-            if (marker.ocupation) {
-              marker.ocupation.resources[4] += 1;
-            }
-            if (marker.city) {
-              marker.ocupation.resources[0] += 1;
-            }
-          });
-          break;
-      }
+      resources = ["green", "lime", "brown", "gray", "yellow"]
+      index = resources.findIndex(this.color)
+      if (index === -1) return;
+      this.buildingMarkers.forEach(marker => marker.pay(resources[index]))
     }
   };
 }

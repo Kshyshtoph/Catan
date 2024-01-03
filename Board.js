@@ -1,26 +1,20 @@
 class Board {
   constructor(boardRadius, hexRadius) {
     this.numbers = [];
-    this.colours = [
-      "lime",
-      "lime",
-      "lime",
-      "lime",
-      "green",
-      "green",
-      "green",
-      "green",
-      "gray",
-      "gray",
-      "gray",
-      "yellow",
-      "yellow",
-      "yellow",
-      "yellow",
-      "brown",
-      "brown",
-      "brown",
-      "burlywood"
+    const limes = Array(4).fill("lime")
+    const greens = Array(4).fill("green")
+    const grays = Array(3).fill("gray")
+    const yellows = Array(4).fill("yellow")
+    const browns = Array(3).fill("brown")
+    const burlywoods = ["burlywood"]
+
+    this.colors = [
+      ...limes,
+      ...greens,
+      ...grays,
+      ...yellows,
+      ...browns,
+      ...burlywoods
     ];
     this.hexes = [];
     this.ports = [];
@@ -37,42 +31,34 @@ class Board {
     for (let i = 3; i <= 11; i++) {
       this.numbers.push(i);
     }
-    this.numbers.forEach((number, index) => {
-      if (number === 7) {
-        this.numbers.splice(index, 1);
-      }
-    });
   };
   createHexes = () => {
     let grow = 1;
     let currentId = 0;
-    let count = this.boardRadius;
     const diagonal = this.boardRadius * 2 - 1;
+    let count = this.boardRadius
     for (let i = 1; i <= diagonal; i++) {
       if (i >= this.boardRadius) {
         grow = -1;
       }
       for (let j = 1; j <= count; j++) {
-        const colour = this.colours.splice(
-          Math.floor(Math.random() * this.colours.length),
+        const [color] = this.colors.splice(
+          Math.floor(Math.random() * this.colors.length),
           1
         );
-        if (colour[0] === "burlywood") {
+        if (color === "burlywood") {
           this.thief.x = ((i * 3) / 2) * hexRadius;
           this.thief.y =
             j * this.hexHeight + ((diagonal - count) / 2) * this.hexHeight;
           this.thief.isSet = true;
         }
         const number =
-          colour[0] !== "burlywood"
-            ? this.numbers.splice(
-                Math.floor(Math.random() * this.numbers.length),
-                1
-              )
+          color !== "burlywood"
+            ? spliceRandomItem(this.numbers)
             : null;
         this.hexes.push(
           new Hex(
-            colour,
+            color,
             currentId,
             number,
             [i, j],
@@ -102,83 +88,27 @@ class Board {
     });
   };
   createPorts = () => {
+    // the keys refer to hex numbers, array contains two corners 
+    // of hex in which port should appear and conditionally port color
+    const ports = {
+      0: [2, 3],
+      1: [3, 4, "green"],
+      2: [4, 5],
+      3: [1, 2, "lime"],
+      7: [0, 1],
+      11: [3, 4, "brown"],
+      15: [4, 5],
+      16: [1, 2, "yellow"],
+      17: [0, 1],
+      18: [5, 0, "gray"]
+    }
     this.hexes.forEach(hex => {
-      if (hex.id === 0) {
-        this.ports.push(
-          new Port(
-            (hex.corners[2][0] + hex.corners[3][0]) / 2,
-            (hex.corners[2][1] + hex.corners[3][1]) / 2
-          )
-        );
-      } else if (hex.id === 1) {
-        this.ports.push(
-          new Port(
-            (hex.corners[3][0] + hex.corners[4][0]) / 2,
-            (hex.corners[3][1] + hex.corners[4][1]) / 2,
-            "green"
-          )
-        );
-      } else if (hex.id === 2) {
-        this.ports.push(
-          new Port(
-            (hex.corners[4][0] + hex.corners[5][0]) / 2,
-            (hex.corners[4][1] + hex.corners[5][1]) / 2
-          )
-        );
-      } else if (hex.id === 11) {
-        this.ports.push(
-          new Port(
-            (hex.corners[3][0] + hex.corners[4][0]) / 2,
-            (hex.corners[3][1] + hex.corners[4][1]) / 2,
-            "brown"
-          )
-        );
-      } else if (hex.id === 15) {
-        this.ports.push(
-          new Port(
-            (hex.corners[4][0] + hex.corners[5][0]) / 2,
-            (hex.corners[4][1] + hex.corners[5][1]) / 2
-          )
-        );
-      } else if (hex.id === 18) {
-        this.ports.push(
-          new Port(
-            (hex.corners[5][0] + hex.corners[0][0]) / 2,
-            (hex.corners[5][1] + hex.corners[0][1]) / 2,
-            "gray"
-          )
-        );
-      } else if (hex.id === 16) {
-        this.ports.push(
-          new Port(
-            (hex.corners[1][0] + hex.corners[2][0]) / 2,
-            (hex.corners[1][1] + hex.corners[2][1]) / 2,
-            "yellow"
-          )
-        );
-      } else if (hex.id === 17) {
-        this.ports.push(
-          new Port(
-            (hex.corners[0][0] + hex.corners[1][0]) / 2,
-            (hex.corners[0][1] + hex.corners[1][1]) / 2
-          )
-        );
-      } else if (hex.id === 7) {
-        this.ports.push(
-          new Port(
-            (hex.corners[0][0] + hex.corners[1][0]) / 2,
-            (hex.corners[0][1] + hex.corners[1][1]) / 2
-          )
-        );
-      } else if (hex.id === 3) {
-        this.ports.push(
-          new Port(
-            (hex.corners[1][0] + hex.corners[2][0]) / 2,
-            (hex.corners[1][1] + hex.corners[2][1]) / 2,
-            "lime"
-          )
-        );
+      if (ports[hex.id] != undefined) {
+        const [cornerIndex1, cornerIndex2, color] = ports[hex.id]
+        const [x, y] = getCenter(hex.corners, cornerIndex1, cornerIndex2)
+        this.ports.push(new Port(x, y, color));
       }
-    });
+    }
+    );
   };
 }

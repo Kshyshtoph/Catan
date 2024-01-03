@@ -58,11 +58,9 @@ class Progress {
       const y = 300 - this.popupHeight / 2 + (i <= 3 ? 25 : 150);
       this.handleCardPlay(e, x, y, currentPlayer.progressCards[i], i);
     }
+    const { offsetX: x, offsetY: y } = e
     if (
-      e.offsetX > 175 + this.popupWidth / 2 &&
-      e.offsetX < 225 + this.popupWidth / 2 &&
-      e.offsetY > 266.5 &&
-      e.offsetY < 266.5 + 75 &&
+      checkCollission(x, 175 + this.popupWidth / 2, 225 + this.popupWidth / 2, y, 266.5, 341.5) &&
       currentPlayer.canAffordProgressCard()
     ) {
       currentPlayer.progressCards.push({
@@ -76,100 +74,63 @@ class Progress {
     this.handlePopupClose(e);
   };
   handlePopupClose = e => {
-    if (
-      e.offsetX > 300 + this.popupWidth / 2 - 50 &&
-      e.offsetX < this.popupWidth / 2 + 300 &&
-      e.offsetY > 300 - this.popupHeight / 2 &&
-      e.offsetY < 350 - this.popupHeight / 2
-    ) {
+    const { offsetX: x, offsetY: y } = e
+    if (checkCollission(x, 300 + this.popupWidth / 2 - 50, this.popupWidth / 2 + 300, y, 300 - this.popupHeight / 2, 350 - this.popupHeight / 2)) {
       this.active = false;
     }
   };
-  handleCardPlay = (e, x, y, card, i) => {
+  handleCardPlay = (e, x1, y1, card, i) => {
     const cardWidth = 50;
     const cardHeight = 75;
-    if (
-      e.offsetX > x &&
-      e.offsetX < x + cardWidth &&
-      e.offsetY > y &&
-      e.offsetY < y + cardHeight
+    const { offsetX: x, offsetY: y } = e
+    if (checkCollission(x, x1, x1 + cardWidth, y, y1, y1 + cardHeight)
     ) {
       switch (card.type) {
         case 1:
           if (card.age < currentRound) {
             board.thief.isSet = false;
-            currentPlayer.progressCards.splice(i, 1);
             currentPlayer.knightsPlayed++;
           }
           break;
         case 2:
           currentPlayer.victoryPoints++;
-          currentPlayer.progressCards.splice(i, 1);
           break;
         case 3:
           if (card.age < currentRound) {
             this.monopolyPopupActive = true;
-            currentPlayer.progressCards.splice(i, 1);
           }
           break;
         case 4:
           if (card.age < currentRound) {
             currentPlayer.freeRoads = 2;
-            currentPlayer.progressCards.splice(i, 1);
           }
           break;
         case 5:
           if (card.age < currentRound) {
             currentPlayer.freeResources = 2;
-            currentPlayer.progressCards.splice(i, 1);
             this.inventionPopupActive = true;
           }
           break;
       }
+      currentPlayer.progressCards.splice(i, 1);
       this.active = false;
     }
   };
+  drawCard = (image) => {
+    ctx.drawImage(
+      image,
+      325 - this.popupWidth / 2 + (i % 4) * 100,
+      300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
+    );
+  }
   handleCardDraw = () => {
     for (let i = 0; i < currentPlayer.progressCards.length; i++) {
-      switch (currentPlayer.progressCards[i].type) {
-        case 1:
-          ctx.drawImage(
-            this.knight,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 2:
-          ctx.drawImage(
-            this.victoryPoint,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 3:
-          ctx.drawImage(
-            this.monopoly,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 4:
-          ctx.drawImage(
-            this.roadBuild,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-        case 5:
-          ctx.drawImage(
-            this.invention,
-            325 - this.popupWidth / 2 + (i % 4) * 100,
-            300 - this.popupHeight / 2 + (i > 3 ? 150 : 25)
-          );
-          break;
-      }
+      const cardType = currentPlayer.progressCards[i].type - 1
+      const cards = [this.knight, this.victoryPoint, this.monopoly, this.roadBuild, this.invention]
+      this.drawCard(cards[cardType])
     }
-  };
+  }
+
   generateCard = () => {
     const card = Math.random();
     if (card < 0.5) return 1;
@@ -189,14 +150,10 @@ class Progress {
     });
   };
   handleMonopolyPopup = e => {
+    const { offsetX: x, offsetY: y } = e
     for (let i = 0; i < 5; i++) {
       let numberOfResources = 0;
-      if (
-        e.offsetX > 125 + i * 75 &&
-        e.offsetX < 175 + i * 75 &&
-        e.offsetY > 225 &&
-        e.offsetY < 300
-      ) {
+      if (checkCollission(x, 125 + i * 75, 175 + i * 75, y, 225, 300)) {
         players.forEach(player => {
           numberOfResources += player.resources[i];
           player.resources[i] = 0;
@@ -207,14 +164,11 @@ class Progress {
     }
   };
   handleInventionPopup = e => {
+    const { offsetX: x, offsetY: y } = e
+
     if (currentPlayer.freeResources > 0) {
       for (let i = 0; i < 5; i++) {
-        if (
-          e.offsetX > 125 + i * 75 &&
-          e.offsetX < 175 + i * 75 &&
-          e.offsetY > 225 &&
-          e.offsetY < 300
-        ) {
+        if (checkCollission(x, 125 + i * 75, 175 + i * 75, y, 225, 300)) {
           currentPlayer.resources[i] += 1;
           currentPlayer.freeResources--;
           if (currentPlayer.freeResources === 0) {

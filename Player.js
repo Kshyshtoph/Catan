@@ -6,7 +6,7 @@ class Player {
     this.freeRoads = 1;
     this.pushMeeples();
     this.pushRoads();
-    this.resources = [0, 0, 0, 0, 0];
+    this.resources = [10, 10, 10, 10, 10];
     this.progressCards = [];
     this.victoryPoints = 0;
     this.freeResources = 0;
@@ -14,6 +14,12 @@ class Player {
     this.crown = new Image();
     this.crown.src = "./img/crown.png";
     this.ports = [];
+  }
+  trade = (incomes, expenses) => {
+    this.resources.forEach((r, i) => {
+      r += incomes[i]
+      r -= expenses[i]
+    })
   }
   pushRoads = () => {
     for (let i = 0; i < 15; i++) {
@@ -55,8 +61,8 @@ class Player {
   canAffordSettlement = () => {
     if (
       this.resources[0] >= 1 &&
-      this.resources[2] >= 1 &&
       this.resources[1] >= 1 &&
+      this.resources[2] >= 1 &&
       this.resources[4] >= 1
     )
       return true;

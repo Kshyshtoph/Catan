@@ -3,6 +3,19 @@ class Interface {
     this.player = player;
     this.skipper = new Skipper(players);
   }
+  isIntersecting(x1, x2, y1, y2, box, modifyier = 0) {
+    return checkCollission(
+      x1,
+      x2 - box - modifyier,
+      x2 + box + modifyier,
+      y1,
+      y2 - box + modifyier,
+      y2 + box - modifyier
+    )
+  }
+  offset({ x, y, size }) {
+    return ({ x2: x + size / 2, y2: y + size / 2, size: size / 2 })
+  }
   draw = () => {
     ctx.fillStyle = "burlywood";
     ctx.fillRect(450, 0, 150, 600);
@@ -75,250 +88,167 @@ class Interface {
     } else {
       progress.handleInventionPopup(e);
     }
-
     this.draw();
   };
   handleSettlementBuild = e => {
-    if (
-      this.player.meeples.findIndex(
-        meeple => meeple.active === true && meeple.type === "settlement"
-      ) !== -1
-    ) {
-      const activeMeeple = this.player.meeples[
-        this.player.meeples.findIndex(meeple => meeple.active === true)
-      ];
-      let settlementBuilt = false;
-      board.hexes.forEach(hex => {
-        hex.buildingMarkers.forEach(marker => {
-          const { x, y, width, height } = marker;
-          if (
-            e.offsetX > x - width / 2 &&
-            e.offsetX < x + width / 2 &&
-            e.offsetY > y - height / 2 &&
-            e.offsetY < y + height / 2 &&
-            !marker.taken &&
-            (this.player.freeSettlement || this.player.canAffordSettlement())
-          ) {
-            activeMeeple.x = x - activeMeeple.height / 2;
-            activeMeeple.y = y - activeMeeple.width / 2;
-            activeMeeple.inPlay = true;
-            activeMeeple.active = false;
-            marker.taken = true;
-            settlementBuilt = true;
-            marker.ocupation = this.player;
-            if (!this.player.freeSettlement) {
-              this.player.resources[0] -= 1;
-              this.player.resources[2] -= 1;
-              this.player.resources[4] -= 1;
-              this.player.resources[1] -= 1;
-            }
-            this.player.freeSettlement = false;
-            board.hexes.forEach(hex => {
-              hex.buildingMarkers.forEach(m => {
-                if (
-                  m.x > marker.x - hexRadius - 5 &&
-                  m.x < marker.x + hexRadius + 5 &&
-                  m.y > marker.y - hexRadius - 5 &&
-                  m.y < marker.y + hexRadius + 5
-                ) {
-                  m.taken = true;
-                }
-                if (
-                  m.x > marker.x - 1 &&
-                  m.x < marker.x + 1 &&
-                  m.y > marker.y - 1 &&
-                  m.y < marker.y + 1
-                ) {
-                  m.ocupation = this.player;
-                }
-              });
-              hex.roadMarkers.forEach(m => {
-                if (
-                  m.x > marker.x - hexRadius &&
-                  m.x < marker.x + hexRadius &&
-                  m.y > marker.y - hexRadius &&
-                  m.y < marker.y + hexRadius
-                ) {
-                  m.canBuild.push(this.player);
-                }
-              });
-            });
-          }
-        });
-      });
-      if (settlementBuilt) this.player.victoryPoints++;
-      board.ports.forEach(port => {
+    const index = this.player.meeples.findIndex(meeple => meeple.active === true && meeple.type === "settlement")
+    if (index === -1) return;
+    const activeMeeple = this.player.meeples[index];
+    let settlementBuilt = false;
+    board.hexes.forEach(hex => {
+      hex.buildingMarkers.forEach(marker => {
+        const { x, y, size } = marker;
+        const boxSize = size / 2
         if (
-          activeMeeple.x + activeMeeple.width / 2 <= port.x + port.radius &&
-          activeMeeple.x + activeMeeple.width / 2 >= port.x - port.radius &&
-          activeMeeple.y + activeMeeple.height / 2 >= port.y - port.radius &&
-          activeMeeple.y + activeMeeple.height / 2 <= port.y + port.radius
+          this.isIntersecting(e.offsetX, x, e.offsetY, y, boxSize) &&
+          !marker.taken &&
+          (this.player.freeSettlement || this.player.canAffordSettlement())
         ) {
-          this.player.ports.push(port);
-        }
-      });
-    }
-  };
-  handleRoadBuild = e => {
-    let roadBuilt = false;
-    if (
-      this.player.meeples.findIndex(
-        meeple => meeple.active === true && meeple.type === "road"
-      ) !== -1 &&
-      (this.player.freeRoads || this.player.canAffordRoad())
-    ) {
-      const activeMeeple = this.player.meeples[
-        this.player.meeples.findIndex(meeple => meeple.active === true)
-      ];
-
-      board.hexes.forEach(hex => {
-        hex.roadMarkers.forEach(marker => {
-          const { x, y, width, height } = marker;
-          if (
-            e.offsetX > x - width / 2 &&
-            e.offsetX < x + width / 2 &&
-            e.offsetY > y - height / 2 &&
-            e.offsetY < y + height / 2 &&
-            !marker.taken &&
-            marker.canBuild.includes(this.player)
-          ) {
-            activeMeeple.x = x - activeMeeple.width / 2;
-            activeMeeple.y = y - activeMeeple.height / 2;
-            activeMeeple.inPlay = true;
-            activeMeeple.active = false;
-            activeMeeple.direction = marker.direction;
-            marker.taken = true;
-            marker.ocupation = this.player;
-            roadBuilt = true;
-            marker.ocupation = currentPlayer;
-            board.hexes.forEach(hex => {
-              hex.roadMarkers.forEach(m => {
-                if (
-                  m.x > marker.x - hexRadius - 5 &&
-                  m.x < marker.x + hexRadius + 5 &&
-                  m.y > marker.y - hexRadius - 5 &&
-                  m.y < marker.y + hexRadius + 5
-                ) {
-                  m.active = true;
-                  m.canBuild.push(this.player);
-                  activeMeeple.neighbours.push(m);
-                }
-              });
-              hex.buildingMarkers.forEach(m => {
-                if (
-                  m.x > marker.x - hexRadius &&
-                  m.x < marker.x + hexRadius &&
-                  m.y > marker.y - hexRadius &&
-                  m.y < marker.y + hexRadius
-                )
-                  m.canBuild.push(this.player);
-              });
-            });
+          activeMeeple.moveToMarker(marker)
+          marker.ocupation = this.player;
+          settlementBuilt = true;
+          if (!this.player.freeSettlement) {
+            this.player.resources[0] -= 1;
+            this.player.resources[2] -= 1;
+            this.player.resources[4] -= 1;
+            this.player.resources[1] -= 1;
           }
-        });
-      });
-      if (this.player.freeRoads === 0 && roadBuilt) {
-        this.player.resources[0] -= 1;
-        this.player.resources[2] -= 1;
-        this.player.findLongestRoad();
-      }
-      if (roadBuilt && this.player.freeRoads !== 0) {
-        this.player.freeRoads -= 1;
-        this.player.findLongestRoad();
-      }
-    }
-  };
-  handleCityBuild = e => {
-    let cityBuilt = false;
-    if (
-      this.player.meeples.findIndex(
-        meeple => meeple.active === true && meeple.type === "city"
-      ) !== -1 &&
-      this.player.canAffordCity()
-    ) {
-      const activeMeeple = this.player.meeples[
-        this.player.meeples.findIndex(
-          meeple => meeple.active === true && meeple.type === "city"
-        )
-      ];
-
-      this.player.meeples.forEach(meeple => {
-        if (meeple.type === "settlement" && meeple.inPlay) {
-          if (
-            e.offsetX > meeple.x &&
-            e.offsetX < meeple.x + meeple.width &&
-            e.offsetY > meeple.y &&
-            e.offsetY < meeple.y + meeple.height
-          ) {
-            activeMeeple.x = meeple.x;
-            activeMeeple.y = meeple.y;
-            meeple.x = meeple.initialX;
-            cityBuilt = true;
-            meeple.y = meeple.initialY;
-            meeple.inPlay = false;
-            activeMeeple.active = false;
-            activeMeeple.inPlay = true;
-          }
+          this.player.freeSettlement = false;
           board.hexes.forEach(hex => {
-            hex.buildingMarkers.forEach(marker => {
-              if (marker.x === activeMeeple.x && marker.y === activeMeeple.y) {
-                marker.city = true;
-              }
+            hex.buildingMarkers.forEach(m => {
+              if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius, 5))
+                m.taken = true;
+              if (this.isIntersecting(m.x, marker.x, m.y, marker.y, 1))
+                m.ocupation = this.player;
+            });
+            hex.roadMarkers.forEach(m => {
+              if (this.isIntersecting(m.x, marker.x, m.y, marker.y, hexRadius))
+                m.canBuild.push(this.player);
             });
           });
         }
       });
-      if (cityBuilt) {
-        this.player.resources[3] -= 3;
-        this.player.resources[4] -= 2;
-        this.player.victoryPoints += 1;
+    });
+    if (settlementBuilt) this.player.victoryPoints++;
+    board.ports.forEach(port => {
+      const { x2: x1, y2: y1 } = this.offset(activeMeeple)
+      if (
+        this.isIntersecting(x1, port.x, y1, port.y, port.radius)
+      ) this.player.ports.push(port);
+    });
+  };
+  handleRoadBuild = e => {
+    let roadBuilt = false;
+    const index = this.player.meeples.findIndex(meeple => meeple.active === true && meeple.type === "road")
+    if (index === -1 || !(this.player.freeRoads || this.player.canAffordRoad())) return;
+    const activeMeeple = this.player.meeples[index];
+
+    board.hexes.forEach(hex => {
+      hex.roadMarkers.forEach(marker => {
+        const { x, y, size } = marker;
+        if (
+          this.isIntersecting(e.offsetX, x, e.offsetY, y, size / 2) &&
+          !marker.taken &&
+          marker.canBuild.includes(this.player)
+        ) {
+          activeMeeple.moveToMarker(marker)
+          marker.ocupation = this.player;
+          marker.ocupation = currentPlayer;
+          roadBuilt = true;
+          board.hexes.forEach(hex => {
+            hex.roadMarkers.forEach(m => {
+              if (
+                this.isIntersecting(m.x, marker.x, hexRadius, 5)
+              ) {
+                m.active = true;
+                m.canBuild.push(this.player);
+                activeMeeple.neighbours.push(m);
+              }
+            });
+
+            hex.buildingMarkers.forEach(m => {
+              if (this.isIntersecting(m.x, marker.x, hexRadius))
+                m.canBuild.push(this.player);
+            });
+          });
+        }
+      });
+    });
+    if (this.player.freeRoads === 0 && roadBuilt) {
+      this.player.resources[0] -= 1;
+      this.player.resources[2] -= 1;
+      this.player.findLongestRoad();
+    }
+    if (roadBuilt && this.player.freeRoads !== 0) {
+      this.player.freeRoads -= 1;
+      this.player.findLongestRoad();
+    }
+  };
+  handleCityBuild = e => {
+    let cityBuilt = false;
+    const index = this.player.meeples.findIndex(
+      meeple => meeple.active === true && meeple.type === "city"
+    )
+    if (index === -1 || !this.player.canAffordCity()) return;
+    console.log('building city')
+    const activeMeeple = this.player.meeples[index];
+
+    this.player.meeples.forEach(meeple => {
+      if (meeple.type === "settlement" && meeple.inPlay) {
+        const { offsetX: x1, offsetY: y1 } = e
+        const { x2, y2, size: size } = this.offset(meeple)
+        if (this.isIntersecting(x1, x2, y1, y2, size)) {
+          activeMeeple.replaceSettlement(meeple);
+          cityBuilt = true;
+        }
+        board.hexes.forEach(hex => {
+          hex.buildingMarkers.forEach(marker => {
+            if (marker.x === activeMeeple.x && marker.y === activeMeeple.y) {
+              marker.city = true;
+            }
+          });
+        });
       }
+    });
+    if (cityBuilt) {
+      this.player.resources[3] -= 3;
+      this.player.resources[4] -= 2;
+      this.player.victoryPoints += 1;
     }
   };
   handleMeepleSelect = e => {
     this.player.meeples.forEach(meeple => {
       if (!meeple.inPlay) {
-        const { x, y, width, height } = meeple;
+        const { offsetX: x1, offsetY: y1 } = e
+        const { x2, y2, size } = this.offset(meeple)
         meeple.active = false;
-        if (
-          e.offsetX > x &&
-          e.offsetX < x + width &&
-          e.offsetY > y &&
-          e.offsetY < y + height
-        ) {
+        if (this.isIntersecting(x1, x2, y1, y2, size)) {
           meeple.active = true;
         }
       }
     });
   };
-  handlePopupShow = e => {
-    if (
-      e.offsetX > market.x &&
-      e.offsetX < market.x + market.width &&
-      e.offsetY > market.y &&
-      e.offsetY < market.y + market.height
-    ) {
+  handlePopupShow(e) {
+    const { offsetX: x1, offsetY: y1 } = e
+    const { x2, y2, size: marketSize } = this.offset(market)
+    if (this.isIntersecting(x1, x2, y1, y2, marketSize)) {
       market.activePlayerIndex = players.findIndex(
         player => player === currentPlayer
       );
       market.active = true;
       market.isOfferSet = false;
     }
-    if (
-      e.offsetX > progress.x &&
-      e.offsetX < progress.x + progress.width &&
-      e.offsetY > progress.y &&
-      e.offsetY < progress.y + progress.height
+    const { x2: x3, y2: y3, size: progressSize } = this.offset(progress)
+    if (this.isIntersecting(x1, x2, x3, y3, progressSize)
     ) {
       progress.active = true;
     }
   };
   handleSkipping = e => {
+    const { offsetX: x1, offsetY: y1 } = e
+    const { x2, y2, size } = this.offset(this.skipper)
     if (
-      e.offsetX > this.skipper.x &&
-      e.offsetX < this.skipper.x + this.skipper.width &&
-      e.offsetY > this.skipper.y &&
-      e.offsetY < this.skipper.y + this.skipper.height
+      this.isIntersecting(x1, x2, y1, y2, size)
     ) {
       this.skipper.skip();
       this.player = players[this.skipper.activePlayerIndex];
@@ -349,7 +279,7 @@ class Interface {
           board.thief.stealFrom.push(marker.ocupation);
         }
       });
-      if (board.thief.stealFrom !== []) board.thief.active = true;
+      if (board.thief.stealFrom.length) board.thief.active = true;
     }
   };
 }

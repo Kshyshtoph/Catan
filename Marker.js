@@ -2,8 +2,7 @@ class Marker {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.width = 10;
-    this.height = 10;
+    this.size = 10;
     this.active = false;
     this.taken = false;
     this.type = "building";
@@ -19,10 +18,10 @@ class Marker {
       ) {
         ctx.fillStyle = "blue";
         ctx.fillRect(
-          this.x - this.width / 2,
-          this.y - this.height / 2,
-          this.width,
-          this.height
+          this.x - this.size / 2,
+          this.y - this.size / 2,
+          this.size,
+          this.size
         );
       }
     } else if (
@@ -32,14 +31,24 @@ class Marker {
     ) {
       ctx.fillStyle = "blue";
       ctx.fillRect(
-        this.x - this.width / 2,
-        this.y - this.height / 2,
-        this.width,
-        this.height
+        this.x - this.size / 2,
+        this.y - this.size / 2,
+        this.size,
+        this.size
       );
     }
   };
 }
+
+class BuildingMarker extends Marker {
+  pay(resource) {
+    let payoff = this.ocupation ? 1 : 0
+    if (!payoff) return;
+    if (marker.city) payoff++
+    this.ocupation.resources[resource] += payoff
+  }
+}
+
 class RoadMarker extends Marker {
   constructor(x, y, direction) {
     super(x, y);
@@ -55,10 +64,10 @@ class RoadMarker extends Marker {
     ) {
       ctx.fillStyle = "blue";
       ctx.fillRect(
-        this.x - this.width / 2,
-        this.y - this.height / 2,
-        this.width,
-        this.height
+        this.x - this.size / 2,
+        this.y - this.size / 2,
+        this.size,
+        this.size
       );
     }
   };

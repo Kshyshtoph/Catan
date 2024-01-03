@@ -2,31 +2,47 @@ class Market {
   constructor() {
     this.x = 315;
     this.y = 500;
-    this.icon = new Image();
-    this.width = 125;
-    this.height = 75;
+    this.size = 75;
     this.active = false;
-    this.icon.onload = this.draw;
-    this.icon.src = "./img/MarketIcon.png";
-    this.closeBtn = new Image();
-    this.closeBtn.src = "./img/closeBtn.png";
-    this.DealWithOtherPlayerBtn = new Image();
-    this.DealWithOtherPlayerBtn.src = "./img/DealWithOtherPlayer.png";
-    this.DealWithBankBtn = new Image();
-    this.DealWithBankBtn.src = "./img/DealWithBank.png";
+    this.icon = assignImage("./img/MarketIcon.png")
+    this.closeBtn = assignImage("./img/closeBtn.png");
+    this.DealWithOtherPlayerBtn = assignImage("./img/DealWithOtherPlayer.png");
+    this.DealWithBankBtn = assignImage("./img/DealWithBank.png")
+    this.acceptBtn = assignImage("./img/accept.png");
     this.dealWith = "otherPlayer";
-    this.acceptBtn = new Image();
-    this.acceptBtn.src = "./img/accept.png";
+    this.icon.onload = this.draw;
     this.offer = [0, 0, 0, 0, 0];
     this.demands = [0, 0, 0, 0, 0];
     this.isOfferSet = false;
     this.activePlayerIndex = 0;
     this.deal = false;
+    this.colors = ["green", "lime", "brown", "gray", "yellow"];
   }
   draw = () => {
     ctx.drawImage(this.icon, this.x, this.y);
     ctx.strokeRect(this.x, this.y, this.width, this.height);
   };
+  drawCard = (colour, i, counter = this.demands, top = 375) => {
+    const spacing = 60
+    const marginLeft = 115
+    const width = 50
+    const height = 75
+    const left = i * spacing + marginLeft
+    const centerX = left + width / 2
+    const centerY = top + height / 2
+    ctx.fillStyle = colour;
+    ctx.fillRect(left, top, width, height);
+    ctx.fillStyle = "black";
+    ctx.strokeRect(i * spacing + marginLeft, top, width, height);
+    ctx.fillText(counter[i], centerX, centerY);
+    if (!this.isOfferSet) {
+      let orientation = -1
+      const offset = 5
+      this.drawTriangle(orientation, centerX, top + (orientation * offset));
+      orientation = 1
+      this.drawTriangle(1, centerX, top + height + orientation * offset);
+    }
+  }
   drawPopup = () => {
     ctx.fillStyle = "burlywood";
     ctx.fillRect(0, 100, 600, 400);
@@ -50,30 +66,11 @@ class Market {
     ctx.fillStyle = "black";
     ctx.fillText("offer", 50, 200);
     const colours = ["green", "lime", "brown", "gray", "yellow"];
-    colours.forEach((colour, i) => {
-      ctx.fillStyle = colour;
-      ctx.fillRect(i * 60 + 115, 225, 50, 75);
-      ctx.strokeRect(i * 60 + 115, 225, 50, 75);
-      ctx.fillStyle = "black";
-      ctx.fillText(this.offer[i], i * 60 + 135, 275);
-      if (!this.isOfferSet) {
-        this.drawTriangle(-1, 140 + i * 60, 220);
-        this.drawTriangle(1, 140 + i * 60, 305);
-      }
-    });
+    colours.forEach((c, i) => this.drawCard(c, i, this.offer, 225));
     ctx.fillStyle = "black";
     ctx.fillText("demands", 50, 350);
-    colours.forEach((colour, i) => {
-      ctx.fillStyle = colour;
-      ctx.fillRect(i * 60 + 115, 375, 50, 75);
-      ctx.fillStyle = "black";
-      ctx.strokeRect(i * 60 + 115, 375, 50, 75);
-      ctx.fillText(this.demands[i], i * 60 + 135, 425);
-      if (!this.isOfferSet) {
-        this.drawTriangle(-1, 140 + i * 60, 370);
-        this.drawTriangle(1, 140 + i * 60, 455);
-      }
-    });
+
+    colours.forEach((c, i) => this.drawCard(c, i));
     ctx.drawImage(this.acceptBtn, 550, 450);
     if (this.isOfferSet) {
       ctx.drawImage(this.closeBtn, 500, 450);
@@ -86,10 +83,7 @@ class Market {
     this.handleDenial(e);
 
     if (
-      e.offsetX < 600 &&
-      e.offsetX > 550 &&
-      e.offsetY < 500 &&
-      e.offsetY > 450
+      checkCollission(e.offsetX, 500, 600, e.offsetY, 450, 500)
     )
       this.handleTrade();
   };
@@ -101,6 +95,7 @@ class Market {
     }
     return true;
   };
+
   drawTriangle(orientation, x, y) {
     ctx.beginPath();
     ctx.fillStyle = "gray";
@@ -123,69 +118,39 @@ class Market {
   };
   chooseMerchant = e => {
     if (
-      e.offsetX > 275 &&
-      e.offsetX < 400 &&
-      e.offsetY > 100 &&
-      e.offsetY < 175
+      checkCollission(e.offsetX, 275, 400, e.offsetY, 100, 175)
     ) {
       this.dealWith = "bank";
     }
     if (
-      e.offsetX > 125 &&
-      e.offsetX < 250 &&
-      e.offsetY > 100 &&
-      e.offsetY < 175
+      checkCollission(e.offsetX, 125, 250, e.offsetY, 100, 175)
     ) {
       this.dealWith = "otherPlayer";
     }
   };
   handleOffer = e => {
-    this.demands.forEach((demand, i) => {
-      if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 350 &&
-        e.offsetY < 370
-      ) {
-        this.demands[i]++;
-      }
-      if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 455 &&
-        e.offsetY < 475 &&
-        this.demands[i] > 0
-      ) {
-        this.demands[i]--;
-      }
+    const handleAmmount = (i, arr, y1, y2, additionalMoreCondition = true) => {
+      const arrowLeft = i * 60 + 115
+      const arrowRight = i * 60 + 155
+      const vDistance = 105
+      const moreCondition = checkCollission(e.offsetX, arrowLeft, arrowRight, e.offsetY, y1, y2)
+      const lessCondition = checkCollission(e.offsetX, arrowLeft, arrowRight, e.offsetY, y1 + vDistance, y2 + vDistance) &&
+        arr[i] > 0
+      if (moreCondition && additionalMoreCondition)
+        arr[i]++
+      if (lessCondition)
+        arr[i]--
+    }
+    this.demands.forEach((_, i, arr) => {
+      handleAmmount(i, arr, 350, 370)
     });
-    this.offer.forEach((demand, i) => {
-      if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 200 &&
-        e.offsetY < 220 &&
-        this.offer[i] < currentPlayer.resources[i]
-      ) {
-        this.offer[i]++;
-      }
-      if (
-        e.offsetX > i * 60 + 115 &&
-        e.offsetX < i * 60 + 155 &&
-        e.offsetY > 305 &&
-        e.offsetY < 320 &&
-        this.offer[i] > 0
-      ) {
-        this.offer[i]--;
-      }
+    this.offer.forEach((supply, i, arr) => {
+      handleAmmount(i, arr, 200, 220, supply < currentPlayer.resources[i])
     });
   };
   handleDenial = e => {
     if (
-      e.offsetX > 500 &&
-      e.offsetX < 550 &&
-      e.offsetY > 450 &&
-      e.offsetY < 500 &&
+      checkCollission(e.offsetX, 200, 550, e.offsetY, 450, 500) &&
       this.isOfferSet
     ) {
       this.activePlayerIndex++;
@@ -205,49 +170,41 @@ class Market {
     this.demands = [0, 0, 0, 0, 0];
     this.dealWith = "otherPlayer";
   };
-  handleTrade = () => {
-    if (this.dealWith === "otherPlayer") {
-      if (!this.isOfferSet) {
-        this.isOfferSet = true;
-        this.tradingPlayerIndex = this.activePlayerIndex;
-        this.activePlayerIndex++;
-      } else {
-        if (this.checkCanTrade()) {
-          this.deal = true;
-          currentPlayer.resources.forEach((resource, index) => {
-            currentPlayer.resources[index] -= this.demands[index];
-            currentPlayer.resources[index] += this.offer[index];
-            players[this.tradingPlayerIndex].resources[index] += this.demands[
-              index
-            ];
-            players[this.tradingPlayerIndex].resources[index] -= this.offer[
-              index
-            ];
-          });
-          this.activePlayerIndex = this.tradingPlayerIndex;
-          this.closePopup();
-        }
-      }
-      if (this.activePlayerIndex === players.length) {
-        this.activePlayerIndex = 0;
-      }
-      currentPlayer = players[this.activePlayerIndex];
-      if (
-        players[this.tradingPlayerIndex] === currentPlayer &&
-        this.isOfferSet
-      ) {
-      }
-      if (this.activePlayerIndex === this.tradingPlayerIndex && this.deal) {
-        currentPlayer.resources.forEach((resource, index) => {
-          currentPlayer.resources[index] += this.demands[index];
-          currentPlayer.resources[index] -= this.offer[index];
-        });
-      } else if (
-        this.currentPlayerIndex === this.tradingPlayerIndex &&
-        !this.deal
-      ) {
+  handlePlayerTrade() {
+    if (!this.isOfferSet) {
+      this.isOfferSet = true;
+      this.tradingPlayerIndex = this.activePlayerIndex;
+      this.activePlayerIndex++;
+    } else {
+      if (this.checkCanTrade()) {
+        this.deal = true;
+        currentPlayer.trade(this.offer, this.demands)
+        players[this.tradingPlayerIndex].trade(this.demands, this.offer)
+        this.activePlayerIndex = this.tradingPlayerIndex;
         this.closePopup();
       }
+    }
+    if (this.activePlayerIndex === players.length) {
+      this.activePlayerIndex = 0;
+    }
+    currentPlayer = players[this.activePlayerIndex];
+    if (
+      players[this.tradingPlayerIndex] === currentPlayer &&
+      this.isOfferSet
+    ) {
+    }
+    if (this.activePlayerIndex === this.tradingPlayerIndex && this.deal) {
+      currentPlayer.trade(this.demands, this.offer)
+    } else if (
+      this.currentPlayerIndex === this.tradingPlayerIndex &&
+      !this.deal
+    ) {
+      this.closePopup();
+    }
+  }
+  handleTrade = () => {
+    if (this.dealWith === "otherPlayer") {
+      this.handlePlayerTrade()
     } else {
       const suppliesIndexes = [];
       let offeredSuplies = 0,
@@ -256,88 +213,33 @@ class Market {
         offeredSuplies += supply;
         if (supply !== 0) {
           suppliesIndexes.push(index);
-          console.log(suppliesIndexes);
+          console.log("suppliesIndexes", suppliesIndexes);
         }
       });
       this.demands.forEach(demand => {
         demandedSupplies += demand;
       });
-      if (
-        offeredSuplies === 4 * demandedSupplies &&
-        suppliesIndexes.length === 1
-      ) {
-        currentPlayer.resources.forEach((resource, index) => {
-          currentPlayer.resources[index] += this.demands[index];
-          currentPlayer.resources[index] -= this.offer[index];
-        });
-      } else if (
+
+      const types = ["green", "lime", "brown", "gray", "yellow"]
+      const normalTrade = (offeredSuplies === 4 * demandedSupplies &&
+        suppliesIndexes.length === 1)
+      const threePerOneTrade = (
+        currentPlayer.ports.findIndex(port => port.type === "3/1") !== -1 &&
         offeredSuplies === 3 * demandedSupplies &&
-        suppliesIndexes.length === 1 &&
-        currentPlayer.ports.findIndex(port => port.type === "3/1") !== -1
-      ) {
-        currentPlayer.resources.forEach((resource, index) => {
-          currentPlayer.resources[index] += this.demands[index];
-          currentPlayer.resources[index] -= this.offer[index];
-        });
-      } else if (
+        suppliesIndexes.length === 1
+      )
+      const twoPerOneTrade = (
+        currentPlayer.ports.findIndex(port => port.type === types[suppliesIndexes[0]]) !== -1 &&
         offeredSuplies === 2 * demandedSupplies &&
         suppliesIndexes.length === 1
+      )
+
+      if (
+        normalTrade ||
+        threePerOneTrade ||
+        twoPerOneTrade
       ) {
-        switch (suppliesIndexes[0]) {
-          case 0:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "green") !==
-              -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 1:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "lime") !== -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 2:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "brown") !==
-              -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 3:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "gray") !== -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-          case 4:
-            if (
-              currentPlayer.ports.findIndex(port => port.type === "yellow") !==
-              -1
-            ) {
-              currentPlayer.resources.forEach((resource, index) => {
-                currentPlayer.resources[index] += this.demands[index];
-                currentPlayer.resources[index] -= this.offer[index];
-              });
-            }
-            break;
-        }
+        currentPlayer.trade(this.demands, this.offer)
       }
       this.closePopup();
     }
